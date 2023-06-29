@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "900769944562",
+    "project_id": "cricbox-d1a35",
+    "storage_bucket": "cricbox-d1a35.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900769944562:android:05e0a86b9934b7cd13d16b",
+        "android_client_info": {
+          "package_name": "com.cricbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "900769944562-msk0r7rke53i8bod9f4ufjn0h4ocf8s1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqffhezX198N_spAUD7sy2jISsjY_3Hog"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "900769944562-msk0r7rke53i8bod9f4ufjn0h4ocf8s1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "900769944562-9s8k5qo3tjf7pau0beu0psifj094eqvf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cricbox"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

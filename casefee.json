@@ -1,0 +1,464 @@
+{
+  "info": {
+    "_postman_id": "7299c30f-e050-4653-9576-9fd75ab733e9",
+    "name": "PG New APIs",
+    "description": "The new Cashfree API are organised around REST. This means that every API has a predictable resource oriiented URL. Every URL accepts JSON request body and returns JSON-encoded responses.\n\nWe also use standard HTTP response codes to denote success or failure for every API call. Only 200 OK responses should be treated as success. Any non 200 HTTP response code should be treated as failure by the merchant.\n\nWe have also added few more features to enable tracking and make debugging easy for merchants.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "UPI Pay",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"order_token\": \"{{orderToken}}\",\n\t\"payment_method\": {\n\t\t\"upi\": {\n\t\t\t\"channel\": \"collect\",\n            \"upi_id\": \"rajnandan1@okhdfcbak\"\n\t\t}\n\t}\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/pay",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "pay"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}",
+                "type": "text"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}",
+                "type": "text"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/{{order_id}}",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "{{order_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "App pay",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"order_token\": \"{{orderToken}}\",\n\t\"payment_method\": {\n\t\t\"app\": {\n\t\t\t\"channel\": \"gpay\",\n            \"phone\": \"8474090552\"\n\t\t}\n\t}\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/pay",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "pay"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Net banking pay",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"order_token\": \"{{orderToken}}\",\n\t\"payment_method\": {\n\t\t\"netbanking\": {\n\t\t\t\"channel\": \"link\",\n            \"netbanking_bank_code\": 3022\n\t\t}\n\t}\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/pay",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "pay"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Card pay",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"order_token\": \"{{orderToken}}\",\n\t\"payment_method\": {\n\t\t\"card\": {\n\t\t\t\"channel\": \"link\",\n\t\t\t\"card_number\": \"4111111111111111\",\n\t\t\t\"card_holder_name\": \"Tushar Gupta\", \n\t\t\t\"card_expiry_mm\": \"06\",\n\t\t\t\"card_expiry_yy\": \"22\",\n\t\t\t\"card_cvv\": \"900\"\n\t\t}\n\t}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/pay",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "pay"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Order Backend",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var resp = pm.response.json();",
+                  "var token = resp.order_token;",
+                  "console.log(token);",
+                  "postman.setEnvironmentVariable(\"orderToken\", token);",
+                  "postman.setEnvironmentVariable(\"order_id\", resp.order_id);",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "function makeid(length) {",
+                  "    var result           = [];",
+                  "    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+                  "    var charactersLength = characters.length;",
+                  "    for ( var i = 0; i < length; i++ ) {",
+                  "      result.push(characters.charAt(Math.floor(Math.random() * ",
+                  " charactersLength)));",
+                  "   }",
+                  "   return result.join('');",
+                  "}",
+                  "pm.environment.set(\"order_id\", makeid(10) + \"_\" + _.random(100,10000))",
+                  "",
+                  "var date = new Date()",
+                  "",
+                  "// Add a day",
+                  "var d = new Date(date.setDate(date.getDate() + 1))",
+                  "d = d.toISOString();",
+                  "console.log(d);",
+                  "pm.environment.set(\"date+1day\", d)",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"order_amount\" : 5.01,\n\t\"order_currency\" : \"INR\",\n\t\"customer_details\": {\n\t\t\"customer_id\": \"7112AAA812234\",\n\t\t\"customer_email\": \"john@cashfree.com\",\n\t\t\"customer_phone\" : \"9908734801\"\n\t},\n\t \"order_meta\": {\n\t\t \"return_url\": \"https://b8af79f41056.eu.ngrok.io?order_id={order_id}&order_token={order_token}\",\n\t\t \"notify_url\": \"https://b8af79f41056.eu.ngrok.io/webhook.php\"\n\t },\n\t\"order_expiry_time\": \"2021-08-01T11:09:51Z\"\n}"
+            },
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "The Orders resource is used to create an order, to make a payment to an order in a seamless way and to get the order status. \n\n1. Create Order Backend\n2. Order Pay\n   - Card Pay\n   - UPI Pay\n   - Net banking pay\n   - App/Wallets Pay\n3. Get Order"
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get Payments for order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}",
+                "type": "text"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}",
+                "type": "text"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/{{order_id}}/payments",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "{{order_id}}", "payments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment by Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}",
+                "type": "text"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}",
+                "type": "text"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/{{order_id}}/payments/{{cf_payment_id}}",
+              "host": ["{{Sandbox_URL}}"],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "payments",
+                "{{cf_payment_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "The payments resource is used to get the payment attempted for every order. We support two APIs. \n\n1. Get all payments for an order\n2. Get payment using Cashfree payment Id."
+    },
+    {
+      "name": "Refunds",
+      "item": [
+        {
+          "name": "Create refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}",
+                "type": "text"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}",
+                "type": "text"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"refund_amount\": 1,\n\t\"refund_id\": \"{{$guid}}\",\n\t\"refund_note\": \"some refund note\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/{{order_id}}/refunds",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "{{order_id}}", "refunds"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Refund",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}",
+                "type": "text"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}",
+                "type": "text"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/{{order_id}}/refunds/:refundId",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "{{order_id}}", "refunds", ":refundId"],
+              "variable": [
+                {
+                  "key": "refundId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all refunds for order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}",
+                "type": "text"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}",
+                "type": "text"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/{{order_id}}/refunds",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "{{order_id}}", "refunds"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "The refunds API is used to initiate a refund, get all refunds for an order and get details for a specific refund.\n\n1. Initiate refund for an order\n2. Get refund using refund Id\n3. Get all refunds for an order"
+    },
+    {
+      "name": "Settlements",
+      "item": [
+        {
+          "name": "Get settlements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-client-id",
+                "value": "{{appId}}",
+                "type": "text"
+              },
+              {
+                "key": "x-client-secret",
+                "value": "{{secretKey}}",
+                "type": "text"
+              },
+              {
+                "key": "x-api-version",
+                "value": "2021-05-21",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{Sandbox_URL}}/orders/{{order_id}}/settlements",
+              "host": ["{{Sandbox_URL}}"],
+              "path": ["orders", "{{order_id}}", "settlements"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "The settlement resource is used to get settlement details for every paid order. This will provide you with the service charge, settlement times, and UTR for every order."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "Sandbox_URL",
+      "value": "https://sandbox.cashfree.com/pg"
+    }
+  ]
+}

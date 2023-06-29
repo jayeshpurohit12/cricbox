@@ -1,0 +1,7 @@
+export const CREATE_USER = 'CREATE_USER';
+export const GET_USER_BY_ID = 'GET_USER_BY_ID';
+export const LOAD_USER_DATA = 'LOAD_USER_DATA';
+
+export const SET_ALERT = 'SET_ALERT';
+export const SHOW_CIRCULAR_BTN = 'SHOW_CIRCULAR_BTN';
+export const SET_THEME = 'SET_THEME';
