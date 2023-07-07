@@ -454,7 +454,8 @@ const BookingSlots = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    // padding: 16,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
   },
   title: {
@@ -505,6 +506,7 @@ const styles = StyleSheet.create({
     height: 50,
     paddingHorizontal: 16,
     elevation: 2,
+    marginBottom: 5,
   },
   backButton: {
     marginRight: 10,

@@ -10,6 +10,7 @@ import { firebase } from "@react-native-firebase/auth";
 import { useDispatch } from "react-redux";
 import { setSelectedSlotSession } from "redux/actions/actions";
 import Config from "../../config";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const PaymentModal = ({
   isPaymentModalOpen,

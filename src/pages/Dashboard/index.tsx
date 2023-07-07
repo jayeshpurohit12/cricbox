@@ -116,8 +116,8 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         const range = getGeohashRange(latitude, longitude, 100);
         firestore()
           .collection("Places")
-          .where("geoHash", ">=", range.lower)
-          .where("geoHash", "<=", range.upper)
+          // .where("geoHash", ">=", range.lower)
+          // .where("geoHash", "<=", range.upper)
           .where("status", "==", "approved")
           .onSnapshot(
             (snapshot) => {

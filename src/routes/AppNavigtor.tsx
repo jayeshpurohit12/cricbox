@@ -33,6 +33,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import BookingSlots from "pages/BookingSlots";
 import BookingSummary from "pages/BookingSummary";
 import BookingDetails from "components/BookingsHistory/BookingDetails";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface IProps {}
 
@@ -213,100 +214,115 @@ const AppNavigator: React.FC<IProps> = ({}) => {
 
   const ProfileStack = () => {
     return (
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
+      <SafeAreaView
+        edges={["bottom", "left", "right"]}
+        style={{ flex: 1, backgroundColor: "#fff" }}
       >
-        <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen name="PaymentHistory" component={PaymentHistory} />
-        <Stack.Screen name="Reports" component={Reports} />
-        <Stack.Screen name="Faq" component={Faq} />
-        <Stack.Screen
-          name="TermsAndConditions"
-          component={TermsAndConditions}
-        />
-        <Stack.Screen
-          name="PrivacyAndPolicies"
-          component={PrivacyAndPolicies}
-        />
-        <Stack.Screen
-          name="MyPlaces"
-          options={hideHeader}
-          component={MyPlaces}
-        />
-        <Stack.Screen
-          name="CreatePlace"
-          options={hideHeader}
-          component={CreatePlace}
-        />
-      </Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="Profile" component={Profile} />
+          <Stack.Screen name="PaymentHistory" component={PaymentHistory} />
+          <Stack.Screen name="Reports" component={Reports} />
+          <Stack.Screen name="Faq" component={Faq} />
+          <Stack.Screen
+            name="TermsAndConditions"
+            component={TermsAndConditions}
+          />
+          <Stack.Screen
+            name="PrivacyAndPolicies"
+            component={PrivacyAndPolicies}
+          />
+          <Stack.Screen
+            name="MyPlaces"
+            options={hideHeader}
+            component={MyPlaces}
+          />
+          <Stack.Screen
+            name="CreatePlace"
+            options={hideHeader}
+            component={CreatePlace}
+          />
+        </Stack.Navigator>
+      </SafeAreaView>
     );
   };
 
   const BookingStack = () => {
     return (
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
+      <SafeAreaView
+        edges={["bottom", "left", "right"]}
+        style={{ flex: 1, backgroundColor: "#fff" }}
       >
-        <Stack.Screen name="Booking" component={Bookings} />
-      </Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="Booking" component={Bookings} />
+        </Stack.Navigator>
+      </SafeAreaView>
     );
   };
 
   const TabNavigator = () => {
     return (
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-
-            if (route.name === "Dashboard") {
-              iconName = "home";
-            } else if (route.name === "Booking") {
-              iconName = "shopping-bag";
-            } else if (route.name === "Profile") {
-              iconName = "user";
-            }
-
-            return <Icon name={iconName} size={size} color={color} />;
-          },
-          tabBarStyle: {
-            height: Platform.OS === "ios" ? 90 : 60,
-            paddingBottom: Platform.OS === "ios" ? 0 : 10,
-          },
-        })}
-        tabBarOptions={{
-          activeTintColor: "green",
-          inactiveTintColor: "gray",
-          safeAreaInsets: {
-            bottom: 0,
-            top: 0,
-          },
-        }}
+      <SafeAreaView
+        edges={["left", "right"]}
+        style={{ flex: 1, backgroundColor: "#fff" }}
       >
-        <Tab.Screen
-          name="Dashboard"
-          component={DashboardStack}
-          options={{
-            headerShown: false,
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ color, size }) => {
+              let iconName;
+
+              if (route.name === "Dashboard") {
+                iconName = "home";
+              } else if (route.name === "Booking") {
+                iconName = "shopping-bag";
+              } else if (route.name === "Profile") {
+                iconName = "user";
+              }
+
+              return <Icon name={iconName} size={size} color={color} />;
+            },
+            tabBarStyle: {
+              height: 60,
+              paddingBottom: Platform.OS === "ios" ? 0 : 10,
+            },
+          })}
+          tabBarOptions={{
+            activeTintColor: "green",
+            inactiveTintColor: "gray",
+            safeAreaInsets: {
+              bottom: 0,
+              top: 0,
+            },
           }}
-        />
-        <Tab.Screen
-          name="Booking"
-          component={BookingStack}
-          options={{ headerShown: false }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={ProfileStack}
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Tab.Navigator>
+        >
+          <Tab.Screen
+            name="Dashboard"
+            component={DashboardStack}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="Booking"
+            component={BookingStack}
+            options={{ headerShown: false }}
+          />
+          <Tab.Screen
+            name="Profile"
+            component={ProfileStack}
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Tab.Navigator>
+      </SafeAreaView>
     );
   };
 
@@ -401,34 +417,36 @@ const AppNavigator: React.FC<IProps> = ({}) => {
 
   if (user) {
     return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="TabNavigation"
-          options={hideHeader}
-          component={TabNavigator}
-        />
-        <Stack.Screen
-          name="PlaceDetails"
-          options={hideHeader}
-          component={PlaceDetails}
-        />
-        <Stack.Screen
-          name="BookingSlots"
-          component={BookingSlots}
-          options={hideHeader}
-        />
-        <Stack.Screen
-          name="BookingSummary"
-          component={BookingSummary}
-          options={hideHeader}
-        />
-        <Stack.Screen name="Booking Details" component={BookingDetails} />
-        {/* <Stack.Screen
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+        <Stack.Navigator screenOptions={screenOptions}>
+          <Stack.Screen
+            name="TabNavigation"
+            options={hideHeader}
+            component={TabNavigator}
+          />
+          <Stack.Screen
+            name="PlaceDetails"
+            options={hideHeader}
+            component={PlaceDetails}
+          />
+          <Stack.Screen
+            name="BookingSlots"
+            component={BookingSlots}
+            options={hideHeader}
+          />
+          <Stack.Screen
+            name="BookingSummary"
+            component={BookingSummary}
+            options={hideHeader}
+          />
+          <Stack.Screen name="Booking Details" component={BookingDetails} />
+          {/* <Stack.Screen
       //     name="DrawerStack"
       //     options={hideHeader}
       //     component={DrawerStack}
       //   /> */}
-      </Stack.Navigator>
+        </Stack.Navigator>
+      </SafeAreaView>
     );
   }
 };
