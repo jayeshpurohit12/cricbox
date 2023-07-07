@@ -18,6 +18,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { ILogin } from "../../../models/Login";
 import commonService from "service/commonService";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 interface IProps extends NavigationProps {}
 
 const validationSchema = Yup.object().shape({
@@ -29,9 +30,13 @@ const validationSchema = Yup.object().shape({
     .min(6, "Password must have at least 6 characters"),
 });
 
+
 const SignIn: React.FC<IProps> = ({ navigation }) => {
+  
+  const navigation2 = useNavigation<NavigationProp<any>>();
   const [showLoader, setLoader] = useState(false);
   const submit = async (values: ILogin, resetForm: () => void) => {
+    // navigation.navigate("ForgotUsername");
     setLoader(true);
     auth()
       .signInWithEmailAndPassword(values.email, values.password)
@@ -40,7 +45,8 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
         if (userData.user.emailVerified) {
           resetForm();
           setTimeout(() => {
-            navigation.navigate("Dashboard");
+            // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
+            navigation.navigate("DashBoard")
           }, 700);
         } else {
           userData.user.sendEmailVerification();

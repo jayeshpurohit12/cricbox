@@ -149,16 +149,16 @@ const BookingSummary = ({ route }) => {
         orderDetails.order_id,
         CFEnvironment.SANDBOX,
       );
-      CFPaymentGatewayService.setCallback({
-        onVerify(res) {
-          if (res) {
-            setIsPaymentSuccess(true);
-          }
-        },
-        onError(error) {
-          console.log(error, "error");
-        },
-      });
+      // CFPaymentGatewayService.setCallback({
+      //   onVerify(res) {
+      //     if (res) {
+      //       setIsPaymentSuccess(true);
+      //     }
+      //   },
+      //   onError(error) {
+      //     console.log(error, "error");
+      //   },
+      // });
       await CFPaymentGatewayService.doWebPayment(JSON.stringify(session));
     } catch (e: any) {
       console.log(e.message, "err");
