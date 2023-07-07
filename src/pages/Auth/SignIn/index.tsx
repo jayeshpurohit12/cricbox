@@ -40,10 +40,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
         if (userData.user.emailVerified) {
           resetForm();
           setTimeout(() => {
-            navigation.navigate("DrawerStack", {
-              screen: "DashboardStack",
-              params: { screen: "Dashboard" },
-            });
+            navigation.navigate("Dashboard");
           }, 700);
         } else {
           userData.user.sendEmailVerification();

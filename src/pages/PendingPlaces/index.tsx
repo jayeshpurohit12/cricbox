@@ -47,7 +47,7 @@ const PendingPlaces: React.FC<IProps> = ({ navigation }) => {
 
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={false} />
       <AppFlatList
         data={pendingItems}
         contentContainerStyle={{ paddingBottom: 60, flex: 1 }}

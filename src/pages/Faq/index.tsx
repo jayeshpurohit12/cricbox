@@ -10,7 +10,7 @@ interface IProps extends NavigationProps {}
 const Faq: React.FC<IProps> = ({ navigation }) => {
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={true} />
       <ReportFaqCards
         title="faq"
         headerText="Lorem Ipsum?"

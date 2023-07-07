@@ -3,14 +3,14 @@ import {
   ScrollView,
   SafeAreaView,
   View,
-  Touchable,
+  Text,
   TouchableOpacity,
+  StyleSheet,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { SliderBox } from "react-native-image-slider-box";
 import { CardBlackText, CardGreyText } from "styles/common.style";
 import RatingView from "components/RatingView";
-import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import I18nContext from "translations/I18nContext";
 import CustomButton from "components/CustomButton";
@@ -18,6 +18,8 @@ import { NavigationProps } from "styles/common.interface";
 import alertService from "service/alertService";
 import firestore from "@react-native-firebase/firestore";
 import commonService from "service/commonService";
+import Feather from "react-native-vector-icons/Feather";
+import moment from "moment";
 interface IProps extends NavigationProps {
   userData: any;
   route: any;
@@ -26,11 +28,12 @@ interface IProps extends NavigationProps {
 const PlaceDetails: React.FC<IProps> = ({ route, navigation, userData }) => {
   const [placeDetails, setPlaceDetails] = useState<any>({ images: [] });
   const [loader, setLoader] = useState("");
+
   useEffect(() => {
     if (route.params) {
       setPlaceDetails(route.params);
     }
-  }, [route]);
+  }, [route.params]);
 
   const updateDetails = (status: string) => {
     if (userData.role === "admin") {
@@ -65,8 +68,12 @@ const PlaceDetails: React.FC<IProps> = ({ route, navigation, userData }) => {
         >
           <Icon size={34} color="white" name="chevron-back-circle-sharp" />
         </TouchableOpacity>
-
-        <SliderBox imageLoadingColor="#081021" images={placeDetails.images} />
+        {placeDetails?.params?.images.length && (
+          <SliderBox
+            imageLoadingColor="#081021"
+            images={placeDetails?.params?.images}
+          />
+        )}
         <View style={{ padding: 8, marginTop: 12 }}>
           <View
             style={{
@@ -79,37 +86,37 @@ const PlaceDetails: React.FC<IProps> = ({ route, navigation, userData }) => {
             <RatingView />
           </View>
           <CardBlackText style={styles.title}>
-            {placeDetails.name}
+            {placeDetails?.params?.name}
           </CardBlackText>
           <CardGreyText>
-            {placeDetails.startTime} - {placeDetails.endTime}
+            {placeDetails?.params?.startTime} - {placeDetails?.params?.endTime}
           </CardGreyText>
-          {placeDetails.distance ? (
-            <CardGreyText>{placeDetails.distance}</CardGreyText>
+          {placeDetails?.params?.distance ? (
+            <CardGreyText>{placeDetails?.params?.distance}</CardGreyText>
           ) : null}
           {userData.role === "admin" || userData.role === "box-admin" ? (
-            <CardGreyText>+91{placeDetails.phone}</CardGreyText>
+            <CardGreyText>+91{placeDetails?.params?.phone}</CardGreyText>
           ) : null}
-
-          <CardGreyText>{placeDetails.description}</CardGreyText>
+          <CardGreyText>{placeDetails?.params?.description}</CardGreyText>
         </View>
         <View style={styles.separator}></View>
         <View style={{ padding: 8 }}>
           <CardBlackText style={styles.title}>
             {I18nContext.getString("location")}
           </CardBlackText>
-          <CardGreyText>{placeDetails.location}</CardGreyText>
+          <CardGreyText>{placeDetails?.params?.location}</CardGreyText>
         </View>
         <View style={styles.separator}></View>
         <View style={{ padding: 8 }}>
           <CardBlackText style={styles.title}>
             {I18nContext.getString("amenities")}
           </CardBlackText>
-          <CardGreyText>{placeDetails.amenities}</CardGreyText>
+          <CardGreyText>{placeDetails?.params?.amenities}</CardGreyText>
         </View>
       </ScrollView>
       <View>
-        {userData.role === "admin" && placeDetails.page === "pending" ? (
+        {userData.role === "admin" &&
+        placeDetails?.params?.page === "pending" ? (
           <View style={styles.footer}>
             <CustomButton
               text="reject"
@@ -149,6 +156,14 @@ const PlaceDetails: React.FC<IProps> = ({ route, navigation, userData }) => {
           </View>
         ) : null}
       </View>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigation.navigate("BookingSlots", placeDetails?.params)
+        }
+      >
+        <Text style={styles.buttonText}>Book</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -162,14 +177,30 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontWeight: "400",
-    fontSize: 14,
+    fontWeight: "bold",
+    fontSize: 16,
   },
   footer: {
     position: "absolute",
     flexDirection: "row",
     width: "100%",
     bottom: 0,
+  },
+  button: {
+    position: "absolute",
+    bottom: 0,
+    backgroundColor: "green",
+    width: "85%",
+    height: 55,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
   },
 });
 

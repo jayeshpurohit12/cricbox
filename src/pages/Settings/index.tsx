@@ -17,7 +17,7 @@ interface IProps extends NavigationProps {}
 const Settings: React.FC<IProps> = ({ navigation }) => {
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={false} />
       <AppScrollView>
         <SpaceContainer marginTop={0} marginBottom={3}>
           <CustomRow>

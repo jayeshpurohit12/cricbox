@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Platform } from "react-native";
 import auth from "@react-native-firebase/auth";
 import SignIn from "../pages/Auth/SignIn";
 import SignUp from "../pages/Auth/SignUp";
@@ -25,12 +26,20 @@ import CreatePlace from "pages/CreatePlace";
 import PendingPlaces from "pages/PendingPlaces";
 import MyPlaces from "pages/MyPlaces";
 import PlaceDetails from "pages/PlaceDetails";
+import Bookings from "pages/Bookings";
+import Profile from "pages/Profile";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Icon from "react-native-vector-icons/FontAwesome";
+import BookingSlots from "pages/BookingSlots";
+import BookingSummary from "pages/BookingSummary";
+import BookingDetails from "components/BookingsHistory/BookingDetails";
 
 interface IProps {}
 
 const AppNavigator: React.FC<IProps> = ({}) => {
   const Stack = createNativeStackNavigator();
   const Drawer = createDrawerNavigator();
+  const Tab = createBottomTabNavigator();
   const theme = useTheme();
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
@@ -73,11 +82,11 @@ const AppNavigator: React.FC<IProps> = ({}) => {
           options={hideHeader}
           component={Dashboard}
         />
-        <Stack.Screen
+        {/* <Stack.Screen
           name="PlaceDetails"
           options={hideHeader}
           component={PlaceDetails}
-        />
+        /> */}
         <Stack.Screen
           name="CryptoMethods"
           options={hideHeader}
@@ -202,62 +211,161 @@ const AppNavigator: React.FC<IProps> = ({}) => {
     );
   };
 
-  const DrawerStack = () => {
+  const ProfileStack = () => {
     return (
-      <Drawer.Navigator drawerContent={(props) => <SideMenu {...props} />}>
-        <Drawer.Screen
-          options={hideHeader}
-          name="DashboardStack"
-          component={DashboardStack}
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="PaymentHistory" component={PaymentHistory} />
+        <Stack.Screen name="Reports" component={Reports} />
+        <Stack.Screen name="Faq" component={Faq} />
+        <Stack.Screen
+          name="TermsAndConditions"
+          component={TermsAndConditions}
         />
-        <Drawer.Screen
-          options={hideHeader}
-          name="CreatPlaceStack"
-          component={CreatPlaceStack}
+        <Stack.Screen
+          name="PrivacyAndPolicies"
+          component={PrivacyAndPolicies}
         />
-        <Drawer.Screen
+        <Stack.Screen
+          name="MyPlaces"
           options={hideHeader}
-          name="PendingPlaceStack"
-          component={PendingPlaceStack}
+          component={MyPlaces}
         />
-        <Drawer.Screen
+        <Stack.Screen
+          name="CreatePlace"
           options={hideHeader}
-          name="MyPlaceStack"
-          component={MyPlaceStack}
+          component={CreatePlace}
         />
-        <Drawer.Screen
-          options={hideHeader}
-          name="PaymentHistoryStack"
-          component={PaymentHistoryStack}
-        />
-        <Drawer.Screen
-          options={hideHeader}
-          name="ReportStack"
-          component={ReportStack}
-        />
-        <Drawer.Screen
-          options={hideHeader}
-          name="FaqStack"
-          component={FaqStack}
-        />
-        <Drawer.Screen
-          options={hideHeader}
-          name="PolicyStack"
-          component={PolicyStack}
-        />
-        <Drawer.Screen
-          options={hideHeader}
-          name="TermsStack"
-          component={TermsStack}
-        />
-        <Drawer.Screen
-          options={hideHeader}
-          name="SetttingsStack"
-          component={SetttingsStack}
-        />
-      </Drawer.Navigator>
+      </Stack.Navigator>
     );
   };
+
+  const BookingStack = () => {
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="Booking" component={Bookings} />
+      </Stack.Navigator>
+    );
+  };
+
+  const TabNavigator = () => {
+    return (
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color, size }) => {
+            let iconName;
+
+            if (route.name === "Dashboard") {
+              iconName = "home";
+            } else if (route.name === "Booking") {
+              iconName = "shopping-bag";
+            } else if (route.name === "Profile") {
+              iconName = "user";
+            }
+
+            return <Icon name={iconName} size={size} color={color} />;
+          },
+          tabBarStyle: {
+            height: Platform.OS === "ios" ? 90 : 60,
+            paddingBottom: Platform.OS === "ios" ? 0 : 10,
+          },
+        })}
+        tabBarOptions={{
+          activeTintColor: "green",
+          inactiveTintColor: "gray",
+          safeAreaInsets: {
+            bottom: 0,
+            top: 0,
+          },
+        }}
+      >
+        <Tab.Screen
+          name="Dashboard"
+          component={DashboardStack}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Tab.Screen
+          name="Booking"
+          component={BookingStack}
+          options={{ headerShown: false }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileStack}
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Tab.Navigator>
+    );
+  };
+
+  // const DrawerStack = () => {
+  //   return (
+  //     <Drawer.Navigator drawerContent={(props) => <SideMenu {...props} />}>
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="DashboardStack"
+  //         component={DashboardStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="CreatPlaceStack"
+  //         component={CreatPlaceStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="PendingPlaceStack"
+  //         component={PendingPlaceStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="MyPlaceStack"
+  //         component={MyPlaceStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="PaymentHistoryStack"
+  //         component={PaymentHistoryStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="ReportStack"
+  //         component={ReportStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="FaqStack"
+  //         component={FaqStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="PolicyStack"
+  //         component={PolicyStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="TermsStack"
+  //         component={TermsStack}
+  //       />
+  //       <Drawer.Screen
+  //         options={hideHeader}
+  //         name="SetttingsStack"
+  //         component={SetttingsStack}
+  //       />
+  //     </Drawer.Navigator>
+  //   );
+  // };
 
   if (initializing) return null;
 
@@ -295,10 +403,31 @@ const AppNavigator: React.FC<IProps> = ({}) => {
     return (
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
-          name="DrawerStack"
+          name="TabNavigation"
           options={hideHeader}
-          component={DrawerStack}
+          component={TabNavigator}
         />
+        <Stack.Screen
+          name="PlaceDetails"
+          options={hideHeader}
+          component={PlaceDetails}
+        />
+        <Stack.Screen
+          name="BookingSlots"
+          component={BookingSlots}
+          options={hideHeader}
+        />
+        <Stack.Screen
+          name="BookingSummary"
+          component={BookingSummary}
+          options={hideHeader}
+        />
+        <Stack.Screen name="Booking Details" component={BookingDetails} />
+        {/* <Stack.Screen
+      //     name="DrawerStack"
+      //     options={hideHeader}
+      //     component={DrawerStack}
+      //   /> */}
       </Stack.Navigator>
     );
   }
