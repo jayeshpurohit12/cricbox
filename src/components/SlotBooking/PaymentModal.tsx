@@ -25,6 +25,7 @@ const PaymentModal = ({
   paymentOrderId,
   setIsPaymentSuccess,
   userDetails,
+  setIsPaymentLoading,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -146,6 +147,7 @@ const PaymentModal = ({
   useEffect(() => {
     if (Platform.OS === "android" && paymentDetails.length) {
       setIsPaymentSuccess(true);
+      setIsPaymentLoading(false);
       dispatch(setSelectedSlotSession({}));
     }
     return () => {

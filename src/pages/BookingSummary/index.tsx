@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { RadioButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -105,6 +106,7 @@ const BookingSummary = ({ route }) => {
   const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
   const [timeReduce, setTimeReduce] = useState(300000);
   const [formattedTime, setFormattedTime] = useState("5:00");
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
   const intervalIdRef = React.useRef(null);
 
@@ -149,6 +151,7 @@ const BookingSummary = ({ route }) => {
   }, [isPaymentSuccess]);
 
   const handlePayment = async () => {
+    setIsPaymentLoading(true);
     try {
       const session = new CFSession(
         orderDetails.payment_session_id,
@@ -158,6 +161,7 @@ const BookingSummary = ({ route }) => {
       await CFPaymentGatewayService.setCallback({
         onVerify(res) {
           if (res && Platform.OS === "ios") {
+            setIsPaymentLoading(false);
             setIsPaymentSuccess(true);
             console.log("response....");
           }
@@ -278,8 +282,20 @@ const BookingSummary = ({ route }) => {
         setPrice={setPrice}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handlePayment}>
-        <Text style={styles.buttonText}>Pay &#8377;{price}</Text>
+      <TouchableOpacity
+        style={[styles.button, isPaymentLoading && { backgroundColor: "grey" }]}
+        onPress={handlePayment}
+        disabled={isPaymentLoading}
+      >
+        {isPaymentLoading ? (
+          <ActivityIndicator
+            size="large"
+            style={{ alignSelf: "center" }}
+            color="green"
+          />
+        ) : (
+          <Text style={styles.buttonText}>Pay &#8377;{price}</Text>
+        )}
       </TouchableOpacity>
 
       <PaymentModal
@@ -288,6 +304,7 @@ const BookingSummary = ({ route }) => {
         paymentOrderId={orderDetails.order_id}
         setIsPaymentSuccess={setIsPaymentSuccess}
         userDetails={userDetails}
+        setIsPaymentLoading={setIsPaymentLoading}
       />
     </View>
   );
