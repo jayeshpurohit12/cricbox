@@ -1,4 +1,11 @@
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import Lottie from "lottie-react-native";
 import successImage from "../../assets/lottie/success.json";
@@ -136,11 +143,15 @@ const PaymentModal = ({
     navigation.navigate("Booking");
     setIsPaymentModalOpen(false);
   };
-
-  if (paymentDetails.length) {
-    setIsPaymentSuccess(true);
-    dispatch(setSelectedSlotSession({}));
-  }
+  useEffect(() => {
+    if (Platform.OS === "android" && paymentDetails.length) {
+      setIsPaymentSuccess(true);
+      dispatch(setSelectedSlotSession({}));
+    }
+    return () => {
+      setIsPaymentSuccess(false);
+    };
+  }, [setIsPaymentSuccess, paymentDetails.length, dispatch]);
 
   return (
     <Modal visible={isPaymentModalOpen} animationType="slide" transparent>

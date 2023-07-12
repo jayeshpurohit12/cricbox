@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { RadioButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
@@ -149,16 +155,17 @@ const BookingSummary = ({ route }) => {
         orderDetails.order_id,
         CFEnvironment.SANDBOX,
       );
-      // CFPaymentGatewayService.setCallback({
-      //   onVerify(res) {
-      //     if (res) {
-      //       setIsPaymentSuccess(true);
-      //     }
-      //   },
-      //   onError(error) {
-      //     console.log(error, "error");
-      //   },
-      // });
+      await CFPaymentGatewayService.setCallback({
+        onVerify(res) {
+          if (res && Platform.OS === "ios") {
+            setIsPaymentSuccess(true);
+            console.log("response....");
+          }
+        },
+        onError(error) {
+          console.log(error, "error");
+        },
+      });
       await CFPaymentGatewayService.doWebPayment(JSON.stringify(session));
     } catch (e: any) {
       console.log(e.message, "err");

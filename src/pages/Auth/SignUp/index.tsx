@@ -26,7 +26,7 @@ import moment from "moment";
 import CheckBox from "@react-native-community/checkbox";
 import { BoxLabel } from "./style";
 import { View } from "react-native";
-
+import { useNavigation } from "@react-navigation/native";
 
 interface IProps extends NavigationProps {}
 const validationSchema = Yup.object().shape({
@@ -52,7 +52,6 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
   const [pushTokenData, setPushTokenData] = useState({} as IRegistration);
   const [showLoader, setLoader] = useState(false);
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
-  const [verificationId, setVerificationId] = useState<string>("");
   useEffect(() => {
     checkMessagingPermission();
   }, []);
@@ -90,7 +89,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
             commonService.showToast("success", "user_crated");
             setLoader(false);
             resetForm();
-            navigation.navigate("VerifyCode",{verificationId:verificationId,phone:values.phone});
+            navigation.navigate("SignIn");
           });
       })
       .catch((error) => {
@@ -103,15 +102,6 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
           commonService.showToast("error", "default_error");
         }
       });
-  };
-  const sendOTP = async (phoneNumber: string) => {
-    try {
-      const confirmation = await auth().signInWithPhoneNumber(`+91 ${phoneNumber}`);
-      console.log(confirmation,"confirmation");
-      // setVerificationId(confirmation);
-    } catch (error) {
-      alert(error);
-    }
   };
   return (
     <React.Fragment>
@@ -258,11 +248,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
                   <CustomGreenButton
                     showLoader={showLoader}
                     text={"next"}
-                    onPress={() => {
-                      sendOTP(values.phone);
-                      handleSubmit();
-                      
-                    }}
+                    onPress={handleSubmit}
                   />
 
                   <SpaceContainer marginTop={6} marginBottom={12}>

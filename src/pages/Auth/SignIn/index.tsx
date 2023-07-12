@@ -30,9 +30,7 @@ const validationSchema = Yup.object().shape({
     .min(6, "Password must have at least 6 characters"),
 });
 
-
 const SignIn: React.FC<IProps> = ({ navigation }) => {
-  
   const navigation2 = useNavigation<NavigationProp<any>>();
   const [showLoader, setLoader] = useState(false);
   const submit = async (values: ILogin, resetForm: () => void) => {
@@ -46,7 +44,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
           resetForm();
           setTimeout(() => {
             // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
-            navigation.navigate("DashBoard")
+            navigation.navigate("TabNavigation");
           }, 700);
         } else {
           userData.user.sendEmailVerification();
