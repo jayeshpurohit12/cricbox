@@ -107,6 +107,7 @@ const BookingSummary = ({ route }) => {
   const [timeReduce, setTimeReduce] = useState(300000);
   const [formattedTime, setFormattedTime] = useState("5:00");
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState([]);
 
   const intervalIdRef = React.useRef(null);
 
@@ -150,6 +151,30 @@ const BookingSummary = ({ route }) => {
     }
   }, [isPaymentSuccess]);
 
+  const paymentCheck = async () => {
+    try {
+      const paymentdata = await axios.get(
+        `https://sandbox.cashfree.com/pg/orders/${orderDetails?.order_id}/payments`,
+        {
+          headers: {
+            "x-client-id": Config.CF_CLIENT_ID,
+            "x-client-secret": Config.CF_CLIENT_SECRET,
+            "x-api-version": Config.CF_API_VERSION,
+          },
+        },
+      );
+
+      if (paymentdata.data) {
+        setPaymentDetails(paymentdata.data);
+        setIsPaymentLoading(false);
+        setIsPaymentSuccess(true);
+      }
+    } catch (error) {
+      setIsPaymentSuccess(true);
+      console.log(error);
+    }
+  };
+
   const handlePayment = async () => {
     setIsPaymentLoading(true);
     try {
@@ -160,14 +185,13 @@ const BookingSummary = ({ route }) => {
       );
       await CFPaymentGatewayService.setCallback({
         onVerify(res) {
-          if (res && Platform.OS === "ios") {
-            setIsPaymentLoading(false);
-            setIsPaymentSuccess(true);
-            console.log("response....");
+          if (res) {
+            paymentCheck();
           }
         },
         onError(error) {
-          console.log(error, "error");
+          paymentCheck();
+          console.log(error);
         },
       });
       await CFPaymentGatewayService.doWebPayment(JSON.stringify(session));
@@ -236,15 +260,6 @@ const BookingSummary = ({ route }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
-      <View style={styles.appBar}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <FontAwesomeIcon name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.appBarTitle}>Booking Summary</Text>
-      </View>
       <BoxDesign>
         <Text style={styles.title}>Booking Summary</Text>
         {bookingDetails.map((detail) => (
@@ -301,30 +316,16 @@ const BookingSummary = ({ route }) => {
       <PaymentModal
         isPaymentModalOpen={isPaymentModalOpen}
         setIsPaymentModalOpen={setIsPaymentModalOpen}
-        paymentOrderId={orderDetails.order_id}
         setIsPaymentSuccess={setIsPaymentSuccess}
         userDetails={userDetails}
         setIsPaymentLoading={setIsPaymentLoading}
+        paymentDetails={paymentDetails}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  appBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "white",
-    height: 50,
-    paddingHorizontal: 16,
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  appBarTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
   box: {
     backgroundColor: "#dee0e3",
     borderRadius: 8,

@@ -5,69 +5,36 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Lottie from "lottie-react-native";
 import successImage from "../../assets/lottie/success.json";
 import failedImage from "../../assets/lottie/failed.json";
 import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
 import moment from "moment";
 import { firebase } from "@react-native-firebase/auth";
 import { useDispatch } from "react-redux";
 import { setSelectedSlotSession } from "redux/actions/actions";
-import Config from "../../config";
-import { SafeAreaView } from "react-native-safe-area-context";
+
+const { height } = Dimensions.get("window");
 
 const PaymentModal = ({
   isPaymentModalOpen,
   setIsPaymentModalOpen,
-  paymentOrderId,
   setIsPaymentSuccess,
   userDetails,
   setIsPaymentLoading,
+  paymentDetails,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
-  const [paymentDetails, setPaymentDetails] = useState([]);
 
   const transactionDateConversion = paymentDetails
     ? moment(paymentDetails[0]?.payment_completion_time).format(
         "DD MMM YYYY, hh:mm A",
       )
     : "";
-
-  useEffect(() => {
-    const paymentSuccessDetails = async () => {
-      try {
-        const res = await axios.get(
-          `https://sandbox.cashfree.com/pg/orders/${paymentOrderId}/payments`,
-          {
-            headers: {
-              "x-client-id": Config.CF_CLIENT_ID,
-              "x-client-secret": Config.CF_CLIENT_SECRET,
-              "x-api-version": Config.CF_API_VERSION,
-            },
-          },
-        );
-
-        setPaymentDetails(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    paymentSuccessDetails();
-    const intervalId = setInterval(() => {
-      if (paymentDetails.length === 0) {
-        paymentSuccessDetails();
-      } else {
-        clearInterval(intervalId);
-      }
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [paymentOrderId, paymentDetails.length, setIsPaymentSuccess]);
 
   //   useEffect(() => {
   //     const paymentSuccess = async () => {
@@ -244,7 +211,11 @@ const PaymentModal = ({
             <Text style={[styles.doneText]}>Done</Text>
           </TouchableOpacity>
           <View
-            style={{ alignSelf: "center", position: "absolute", bottom: 10 }}
+            style={{
+              alignSelf: "center",
+              position: "absolute",
+              bottom: Platform.OS === "ios" ? 30 : 10,
+            }}
           >
             <Text style={{ fontSize: 14, color: "red" }}>
               Note: Please click on done to complete your payment!!
@@ -266,12 +237,9 @@ const styles = StyleSheet.create({
   innerModalView: {
     flex: 1,
     backgroundColor: "#fff",
-    height: "63%",
+    height: height,
     width: "100%",
-    bottom: 0,
-    position: "absolute",
-    borderTopLeftRadius: 50,
-    borderTopRightRadius: 50,
+    paddingTop: 40,
   },
   paymentSuccesssText: {
     marginTop: 25,
@@ -304,8 +272,9 @@ const styles = StyleSheet.create({
   },
   doneButton: {
     borderWidth: 1,
-    position: "absolute",
-    bottom: "8%",
+    // position: "absolute",
+    // bottom: "8%",
+    marginTop: 20,
     alignSelf: "center",
     paddingHorizontal: 30,
     paddingVertical: 10,

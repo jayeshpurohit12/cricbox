@@ -5,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  Image,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import firebase from "@react-native-firebase/app";
@@ -36,21 +37,21 @@ const Profile = ({ navigation }) => {
       id: "0",
       title: "My Places",
       screen: "MyPlaces",
-      icon: <FontAwesome5 name="place-of-worship" size={22} color="grey" />,
+      icon: <FontAwesome5 name="place-of-worship" size={19} color="grey" />,
       access: ["admin", "box-admin"],
     },
     {
       id: "1",
       title: "Add Places",
       screen: "CreatePlace",
-      icon: <Entypo name="address" size={25} color="grey" />,
+      icon: <Entypo name="address" size={19} color="grey" />,
       access: ["admin", "box-admin"],
     },
     {
       id: "2",
       title: "Reports",
       screen: "Reports",
-      icon: <Icon name="file-text-o" size={25} color="grey" />,
+      icon: <Icon name="file-text-o" size={19} color="grey" />,
       access: ["admin", "box-admin", "normal"],
     },
     {
@@ -60,7 +61,7 @@ const Profile = ({ navigation }) => {
       icon: (
         <MaterialCommunityIcons
           name="help-circle-outline"
-          size={25}
+          size={19}
           color="grey"
         />
       ),
@@ -70,24 +71,24 @@ const Profile = ({ navigation }) => {
       id: "4",
       title: "Terms & Conditions",
       screen: "TermsAndConditions",
-      icon: <Icon name="file-text-o" size={25} color="grey" />,
+      icon: <Icon name="file-text-o" size={19} color="grey" />,
       access: ["admin", "box-admin", "normal"],
     },
     {
       id: "5",
       title: "Privacy Policy",
       screen: "PrivacyAndPolicies",
-      icon: <Icon name="file-text-o" size={25} color="grey" />,
+      icon: <Icon name="file-text-o" size={19} color="grey" />,
       access: ["admin", "box-admin", "normal"],
     },
     {
       id: "6",
       title: "Log out",
-      icon: <Icon name="sign-out" size={25} color="grey" />,
+      icon: <Icon name="sign-out" size={19} color="grey" />,
       access: ["admin", "box-admin", "normal"],
     },
   ];
-  const [username, setUsername] = useState("");
+  const [userDetails, setUserDetails] = useState({});
 
   const handleSignOut = () => {
     try {
@@ -97,18 +98,27 @@ const Profile = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    // Retrieve the currently logged-in user
-    const currentUser = firebase.auth().currentUser;
+  const capitalizeFirstLetter = (str) => {
+    return str?.charAt(0)?.toUpperCase() + str?.slice(1);
+  };
 
-    if (currentUser) {
-      // User is logged in
-      setUsername(currentUser.email);
-    } else {
-      // User is not logged in
-      setUsername("");
-    }
-  }, []);
+  const capitalizedFullName = capitalizeFirstLetter(userDetails?.fullName);
+
+  console.log(userDetails, "userDetails..");
+
+  const currentUser = firebase.auth().currentUser?.uid;
+
+  useEffect(() => {
+    navigation.addListener("focus", async () => {
+      const user = await firebase
+        .firestore()
+        .collection("Users")
+        .doc(currentUser)
+        .get();
+
+      setUserDetails(user?._data);
+    });
+  }, [navigation]);
   const renderItem = ({ item }) => {
     return (
       <>
@@ -143,21 +153,64 @@ const Profile = ({ navigation }) => {
           flexDirection: "row",
         }}
       >
-        <TouchableOpacity style={{ padding: 20 }}>
-          <Icon name="user-circle" size={56} color="white" />
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 20,
+            backgroundColor: "#000",
+            paddingVertical: 6,
+            paddingHorizontal: 13,
+            borderRadius: 35,
+          }}
+          onPress={() => navigation.navigate("EditProfile", { userDetails })}
+        >
+          <Text style={{ color: "#fff", fontSize: 12 }}>Edit</Text>
         </TouchableOpacity>
+
+        {userDetails?.profileUrl ? (
+          <Image
+            source={{
+              uri: userDetails?.profileUrl,
+            }}
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 50,
+              margin: 20,
+            }}
+          />
+        ) : (
+          <Icon
+            name="user-circle"
+            size={56}
+            color="white"
+            style={{ padding: 20 }}
+          />
+        )}
+
         <View>
           <Text style={{ fontSize: 16, fontWeight: "700", color: "#000000" }}>
-            {username}
+            {capitalizedFullName}
+          </Text>
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: "500",
+              color: "#000000",
+              marginTop: 10,
+            }}
+          >
+            {userDetails?.email}
           </Text>
         </View>
       </View>
       <View
         style={{
-          paddingLeft: 20,
+          paddingLeft: 10,
           width: "95%",
           justifyContent: "center",
-          paddingTop: 40,
+          paddingTop: 30,
         }}
       >
         <FlatList
@@ -181,10 +234,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   itemText: {
-    fontSize: 16,
     marginLeft: 20,
     color: "#000000",
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   // text:{
   //     color:'#000',

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView } from "react-native";
 import moment from "moment";
 import Date from "./Date";
 
-const Calendar = ({ onSelectDate, selected }) => {
+const Calendar = ({ onSelectDate, selected, setSelectedSlots }) => {
   const [dates, setDates] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [currentMonth, setCurrentMonth] = useState();
@@ -20,6 +20,12 @@ const Calendar = ({ onSelectDate, selected }) => {
   useEffect(() => {
     getDates();
   }, []);
+
+  useEffect(() => {
+    if (selected) {
+      setSelectedSlots([]);
+    }
+  }, [selected]);
 
   const getCurrentMonth = () => {
     const month = moment(dates[0])
@@ -42,7 +48,6 @@ const Calendar = ({ onSelectDate, selected }) => {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            // onScroll is a native event that returns the number of pixels the user has scrolled
             onScroll={(e) => setScrollPosition(e.nativeEvent.contentOffset.x)}
             scrollEventThrottle={16}
           >
@@ -67,6 +72,7 @@ const styles = StyleSheet.create({
   centered: {
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 10,
   },
   title: {
     fontSize: 16,

@@ -20,7 +20,7 @@ import {
 } from "react-native";
 import { FontSize } from "styles/sizes";
 import { StyleSheet } from "react-native";
-import auth from "@react-native-firebase/auth";
+import auth, { firebase } from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import RatingView from "components/RatingView";
 import GetLocation from "react-native-get-location";
@@ -61,6 +61,8 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   const [listItems, setListItems] = useState([]);
   const [showLoader, setLoader] = useState(false);
   const [locationPermission, setLocationPermission] = useState(false);
+
+  const userCurrentId = auth().currentUser?.uid;
   useEffect(() => {
     let userSubscriber: any = null;
     const subscriber = auth().onAuthStateChanged((user) => {
@@ -103,6 +105,30 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
       upper,
     };
   };
+
+  const handleRemoveSession = async () => {
+    try {
+      const collectionRef = firebase
+        .firestore()
+        .collection("BookedSlots")
+        .where("userId", "==", userCurrentId);
+
+      const querySnapshot = await collectionRef.get();
+
+      querySnapshot.docs.forEach((doc) => {
+        if (!doc.data().isBooked) {
+          doc.ref.delete();
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return true;
+  };
+
+  useEffect(() => {
+    handleRemoveSession();
+  }, []);
 
   const loadPlaces = () => {
     setLoader(true);

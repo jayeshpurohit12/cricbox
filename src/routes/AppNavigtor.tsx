@@ -34,6 +34,7 @@ import BookingSlots from "pages/BookingSlots";
 import BookingSummary from "pages/BookingSummary";
 import BookingDetails from "components/BookingsHistory/BookingDetails";
 import { SafeAreaView } from "react-native-safe-area-context";
+import EditProfile from "pages/EditProfile";
 
 interface IProps {}
 
@@ -432,14 +433,27 @@ const AppNavigator: React.FC<IProps> = ({}) => {
           <Stack.Screen
             name="BookingSlots"
             component={BookingSlots}
-            options={hideHeader}
+            options={{
+              headerTitle: "Booking Slots",
+              headerBackTitleVisible: false,
+            }}
           />
           <Stack.Screen
             name="BookingSummary"
             component={BookingSummary}
-            options={hideHeader}
+            options={{
+              headerTitle: "Booking Summary",
+              headerBackTitleVisible: false,
+            }}
           />
           <Stack.Screen name="Booking Details" component={BookingDetails} />
+          <Stack.Screen
+            name="EditProfile"
+            component={EditProfile}
+            options={{
+              headerTitle: "Edit Profile",
+            }}
+          />
           {/* <Stack.Screen
       //     name="DrawerStack"
       //     options={hideHeader}

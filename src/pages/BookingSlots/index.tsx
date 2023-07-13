@@ -15,7 +15,6 @@ import { firebase } from "@react-native-firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedSlotSession } from "redux/actions/actions";
 import isEmpty from "lodash/isEmpty";
-import Config from "react-native-config";
 
 const TimeSlotItem = ({
   slot,
@@ -32,7 +31,12 @@ const TimeSlotItem = ({
   const endTime = moment(parseSlot[1], "h:mm A");
 
   return (
-    <View style={{ flexDirection: "row", justifyContent: "center" }}>
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "center",
+      }}
+    >
       <View style={styles.boxContainer}>
         <Text style={styles.slotText}>{slot}</Text>
       </View>
@@ -54,14 +58,19 @@ const TimeSlotItem = ({
         }
       >
         {isSelected && (
-          <Text style={{ textAlign: "center", fontWeight: "700" }}>
+          <Text
+            style={{
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
             Selected
           </Text>
         )}
         {(isDisabled?.slot === slot ||
           (currentDate === selectedDate &&
             (currentTime >= startTime || currentTime >= endTime))) && (
-          <Text style={{ textAlign: "center", fontWeight: "700" }}>
+          <Text style={{ textAlign: "center", fontWeight: "500" }}>
             Unavailable
           </Text>
         )}
@@ -412,18 +421,23 @@ const BookingSlots = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.appBar}>
+      {/* <View style={styles.appBar}>
         <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
           <FontAwesomeIcon name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.appBarTitle}>Booking Summary</Text>
-      </View>
-      <Calendar onSelectDate={setSelectedDate} selected={selectedDate} />
+      </View> */}
+      <Calendar
+        onSelectDate={setSelectedDate}
+        selected={selectedDate}
+        setSelectedSlots={setSelectedSlots}
+      />
 
       <Text style={styles.title}>Select Timeslots</Text>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: "25%" }}
+        // contentContainerStyle={{ paddingBottom: "25%" }}
+        style={{ marginBottom: "23%" }}
       >
         {timeSlots.map((slot) => (
           <TimeSlotItem
@@ -454,34 +468,34 @@ const BookingSlots = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // padding: 16,
-    paddingHorizontal: 15,
     backgroundColor: "#fff",
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
+    fontSize: 18,
+    fontWeight: "600",
+    marginVertical: 13,
+    marginLeft: 16,
   },
   timeSlot: {
     backgroundColor: "#ffffff",
-    padding: 15,
-    marginBottom: 10,
     borderWidth: 1,
     borderColor: "#ccc",
-    width: "70%",
-    height: "100%",
+    width: "60%",
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
   activeSlot: {
-    backgroundColor: "#32a852", // Active color
+    backgroundColor: "#32a852",
   },
   boxContainer: {
     backgroundColor: "#e0e0e0",
-    padding: 6,
-    width: "30%",
+    padding: 2,
+    width: "40%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   slotText: {
-    fontSize: 16,
     color: "#333",
   },
   button: {
