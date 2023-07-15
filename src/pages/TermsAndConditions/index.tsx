@@ -17,7 +17,7 @@ interface IProps extends NavigationProps {}
 const TermsAndConditions: React.FC<IProps> = ({ navigation }) => {
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={true} />
       <AppScrollView>
         <SpaceContainer marginBottom={3}>
           <ContainTitle>

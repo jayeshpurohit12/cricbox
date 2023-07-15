@@ -21,7 +21,7 @@ interface IProps extends NavigationProps {}
 const PrivacyAndPolicies: React.FC<IProps> = ({ navigation }) => {
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={true} />
       <AppScrollView>
         <SpaceContainer marginBottom={3}>
           <ContainTitle>{I18nContext.getString("privacy_policy")}</ContainTitle>

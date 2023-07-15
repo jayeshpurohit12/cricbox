@@ -9,10 +9,18 @@ import {
   EmptyText,
 } from "../../styles/common.style";
 import I18nContext from "../../translations/I18nContext";
-import { View, FlatList, Image, TouchableOpacity, Linking } from "react-native";
+import {
+  View,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Button,
+  Text,
+} from "react-native";
 import { FontSize } from "styles/sizes";
 import { StyleSheet } from "react-native";
-import auth from "@react-native-firebase/auth";
+import auth, { firebase } from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import RatingView from "components/RatingView";
 import GetLocation from "react-native-get-location";
@@ -53,6 +61,8 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   const [listItems, setListItems] = useState([]);
   const [showLoader, setLoader] = useState(false);
   const [locationPermission, setLocationPermission] = useState(false);
+
+  const userCurrentId = auth().currentUser?.uid;
   useEffect(() => {
     let userSubscriber: any = null;
     const subscriber = auth().onAuthStateChanged((user) => {
@@ -96,6 +106,30 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
     };
   };
 
+  const handleRemoveSession = async () => {
+    try {
+      const collectionRef = firebase
+        .firestore()
+        .collection("BookedSlots")
+        .where("userId", "==", userCurrentId);
+
+      const querySnapshot = await collectionRef.get();
+
+      querySnapshot.docs.forEach((doc) => {
+        if (!doc.data().isBooked) {
+          doc.ref.delete();
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return true;
+  };
+
+  useEffect(() => {
+    handleRemoveSession();
+  }, []);
+
   const loadPlaces = () => {
     setLoader(true);
     GetLocation.getCurrentPosition({
@@ -108,15 +142,14 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         const range = getGeohashRange(latitude, longitude, 100);
         firestore()
           .collection("Places")
-          .where("geoHash", ">=", range.lower)
-          .where("geoHash", "<=", range.upper)
+          // .where("geoHash", ">=", range.lower)
+          // .where("geoHash", "<=", range.upper)
           .where("status", "==", "approved")
           .onSnapshot(
             (snapshot) => {
               const data: any = [];
               snapshot.forEach((document) => {
                 const documentData: any = document.data();
-                console.log(documentData, "sd");
                 var haversine_m = haversine(
                   { lat: latitude, lng: longitude },
                   { lat: documentData.lat, lng: documentData.long },
@@ -149,7 +182,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   // const [isModalVisible, setModalVisible] = useState(false);
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={false} />
       <FlatList
         data={listItems}
         contentContainerStyle={{ paddingBottom: 60 }}
@@ -213,8 +246,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
                   renderItem={({ item, index, separators }) => (
                     <TouchableOpacity
                       onPress={() => {
-                        navigation.navigate("DashboardStack", {
-                          screen: "PlaceDetails",
+                        navigation.navigate("PlaceDetails", {
                           params: item,
                         });
                       }}
@@ -248,8 +280,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         renderItem={({ item, index, separators }) => (
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("DashboardStack", {
-                screen: "PlaceDetails",
+              navigation.navigate("PlaceDetails", {
                 params: item,
               });
             }}
@@ -298,6 +329,17 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
           </TouchableOpacity>
         )}
       />
+      {/* <TouchableOpacity
+        onPress={handleBooking}
+        style={{
+          alignSelf: "center",
+          marginTop: 200,
+          borderWidth: 1,
+          width: "40%",
+        }}
+      >
+        <Text>click me</Text>
+      </TouchableOpacity> */}
     </React.Fragment>
   );
 };

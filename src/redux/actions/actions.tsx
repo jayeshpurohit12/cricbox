@@ -1,4 +1,4 @@
-import * as Types from './types';
+import * as Types from "./types";
 
 // REGISTRATION FIRST STEP
 export const createUser = (userData: any) => {
@@ -46,5 +46,12 @@ export const setCircularBtn = (value: boolean) => {
   return {
     type: Types.SHOW_CIRCULAR_BTN,
     value,
+  };
+};
+
+export const setSelectedSlotSession = (slotSession: any) => {
+  return {
+    type: Types.SET_SELECTED_SLOT_SESSION,
+    slotSession,
   };
 };

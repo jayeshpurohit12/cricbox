@@ -1,0 +1,13 @@
+import {
+  CF_CLIENT_ID,
+  CF_CLIENT_SECRET,
+  CF_API_VERSION,
+  CF_DEVELOPER_NAME,
+} from "@env";
+
+export default {
+  CF_CLIENT_ID,
+  CF_CLIENT_SECRET,
+  CF_API_VERSION,
+  CF_DEVELOPER_NAME,
+};

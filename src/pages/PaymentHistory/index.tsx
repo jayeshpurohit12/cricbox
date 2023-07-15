@@ -20,7 +20,7 @@ interface IProps extends NavigationProps {}
 const PaymentHistory: React.FC<IProps> = ({ navigation }) => {
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={false} />
       <AppFlatList
         data={paymentHistory}
         contentContainerStyle={{ paddingBottom: 60 }}

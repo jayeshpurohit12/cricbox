@@ -69,6 +69,10 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    dexOptions {
+       javaMaxHeapSize "3g"
+    }
+
     // ? You can remove if you don't want to use JAVA Version 18
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

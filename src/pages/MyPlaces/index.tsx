@@ -45,7 +45,7 @@ const MyPlaces: React.FC<IProps> = ({ userData }) => {
 
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showMenu={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={true} />
       <AppFlatList
         data={myItems}
         contentContainerStyle={{ paddingBottom: 60, flex: 1 }}

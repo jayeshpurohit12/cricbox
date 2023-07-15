@@ -23,7 +23,7 @@ const Icon = styled.Image`
 
 const CloseContainer = styled.TouchableOpacity`
   position: absolute;
-  left: ${RespScreenWidth(5)};
+  right: ${RespScreenWidth(5)};
   top: ${RespScreenHeight(2)};
 `;
 
@@ -47,6 +47,12 @@ const HelpBottomSheet: React.FC<IProps> = ({ isVisible, onClose }) => {
   return (
     <CustomModal isVisible={isVisible}>
       <ModalContainer>
+        <CloseContainer onPress={() => onClose("")}>
+          <CloseIcon
+            style={styles.closeStyle}
+            source={require("../../../assets/images/close.png")}
+          />
+        </CloseContainer>
         <ListItem onPress={() => onClose("chat")}>
           <ListIcon
             style={styles.iconStyle}
@@ -68,8 +74,8 @@ const HelpBottomSheet: React.FC<IProps> = ({ isVisible, onClose }) => {
 
 const styles = StyleSheet.create({
   closeStyle: {
-    width: 32,
-    height: 32,
+    width: 12,
+    height: 12,
   },
   iconStyle: {
     width: 30,

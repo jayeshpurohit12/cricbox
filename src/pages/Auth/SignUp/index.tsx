@@ -26,6 +26,8 @@ import moment from "moment";
 import CheckBox from "@react-native-community/checkbox";
 import { BoxLabel } from "./style";
 import { View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
 interface IProps extends NavigationProps {}
 const validationSchema = Yup.object().shape({
   fullName: Yup.string()

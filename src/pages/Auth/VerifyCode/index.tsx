@@ -16,12 +16,14 @@ import CustomGreenButton from "../../../components/CustomGreenButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { OtpContainer, OtpBox, CirculerTimer } from "./style";
 import BottomText from "../../../components/BottomText";
+import { useRoute } from "@react-navigation/native";
 
 interface IProps extends NavigationProps {}
 
-const VerifyCode: React.FC<IProps> = ({ navigation }) => {
+const VerifyCode: React.FC<IProps> = ({ navigation}) => {
   const theme = useTheme();
-
+  const route = useRoute();
+  const {phone} = route.params;
   const formatTime = (remainingTime) => {
     let minutes = Math.floor(remainingTime / 60).toString();
     let seconds = (remainingTime % 60).toString();

@@ -21,3 +21,14 @@ buildscript {
         classpath ("com.google.firebase:firebase-crashlytics-gradle:2.9.2")
     }
 }
+
+subprojects {
+    afterEvaluate {project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
+            }
+        }
+    }
+}
