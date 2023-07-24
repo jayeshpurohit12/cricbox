@@ -1,4 +1,6 @@
-import React from "react";
+
+import React, { useState, useRef } from 'react';
+import { View, TextInput, StyleSheet } from 'react-native';
 import connectStore from "../../../redux/connect";
 import {
   AppScrollView,
@@ -21,9 +23,12 @@ import { useRoute } from "@react-navigation/native";
 interface IProps extends NavigationProps {}
 
 const VerifyCode: React.FC<IProps> = ({ navigation}) => {
+  const [otp, setOTP] = useState(['', '', '', '', '', '']);
+  const refs = useRef([]);
+
   const theme = useTheme();
   const route = useRoute();
-  const {phone} = route.params;
+  const {confirm} = route.params;
   const formatTime = (remainingTime) => {
     let minutes = Math.floor(remainingTime / 60).toString();
     let seconds = (remainingTime % 60).toString();
@@ -36,7 +41,43 @@ const VerifyCode: React.FC<IProps> = ({ navigation}) => {
     }
     return `${minutes}:${seconds}`;
   };
+  async function confirmCode() {
+    const code = otp.join('');
+    console.log(code);
+    try {
+      await confirm.confirm(code);
+      console.log('Successfully logged in');
+      navigation.navigate("TabNavigator");
+    } catch (error) {
+      console.log('Invalid code.');
+    }
+  }
+  
+  const handleOTPEnter = (index, input) => {
+    setOTP((prevOTP) => {
+      const newOTP = [...prevOTP];
+      newOTP[index] = input;
+      return newOTP;
+    });
 
+    if (input !== '') {
+      if (index < 5) {
+        refs.current[index + 1].focus();
+      }
+    } else {
+      if (index > 0) {
+        refs.current[index - 1].focus();
+      }
+    }
+  };
+
+  const handleOTPKeyPress = (index, e) => {
+    if (e.nativeEvent.key === 'Backspace' && index > 0) {
+      refs.current[index - 1].focus();
+    }
+  };
+
+  
   return (
     <React.Fragment>
       <HeaderBar dummyRight={true} showBack={true} />
@@ -56,32 +97,28 @@ const VerifyCode: React.FC<IProps> = ({ navigation}) => {
           </SpaceContainer>
           <SpaceContainer marginBottom={6}>
             <OtpContainer>
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
+            <View style={styles.container}>
+      <View style={styles.otpContainer}>
+        {otp.map((digit, index) => (
+          <TextInput
+            key={index}
+            style={styles.otpBox}
+            value={digit}
+            onChangeText={(input) => handleOTPEnter(index, input)}
+            onKeyPress={(e) => handleOTPKeyPress(index, e)}
+            keyboardType="numeric"
+            maxLength={1}
+            ref={(input) => (refs.current[index] = input)}
+          />
+        ))}
+      </View>
+    </View>
             </OtpContainer>
           </SpaceContainer>
           <CustomGreenButton
             showLoader={false}
             text={"verify"}
-            onPress={() => ""}
+            onPress={() => confirmCode() }
           />
           <SpaceContainer marginTop={7}>
             <CirculerTimer>
@@ -113,4 +150,26 @@ const VerifyCode: React.FC<IProps> = ({ navigation}) => {
     </React.Fragment>
   );
 };
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  otpBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginHorizontal: 5,
+    textAlign: 'center',
+    fontSize: 20,
+  },
+});
 export default connectStore(VerifyCode);
+
