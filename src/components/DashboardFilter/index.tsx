@@ -21,7 +21,7 @@ const DashboardFilter = ({
     (state) => state.FilterReducer.selectedStartTime,
   );
   const selectedEndTime = useSelector(
-    (state) => state.FilterReducer.selectedTurfSize,
+    (state) => state.FilterReducer.selectedEndTime,
   );
 
   const price = [
@@ -77,7 +77,7 @@ const DashboardFilter = ({
                 filterData={price}
                 title="Price"
                 zIndex={80}
-                uniqueKey="Price"
+                uniqueKey="price"
               />
               <FilterFields
                 filterData={turfTime}

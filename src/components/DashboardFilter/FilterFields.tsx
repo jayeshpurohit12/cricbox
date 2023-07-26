@@ -22,7 +22,7 @@ const FilterFields = ({ filterData, title, zIndex, uniqueKey }) => {
       dispatch(setSelectedPrice(value));
     } else if (uniqueKey === "startTime") {
       dispatch(setSelectedStartTime(value));
-    } else {
+    } else if (uniqueKey === "endTime") {
       dispatch(setSelectedEndTime(value));
     }
   }, [dispatch, value, uniqueKey]);
