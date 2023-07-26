@@ -111,16 +111,16 @@ const PaymentModal = ({
     navigation.navigate("Booking");
     setIsPaymentModalOpen(false);
   };
-  useEffect(() => {
-    if (Platform.OS === "android" && paymentDetails.length) {
-      setIsPaymentSuccess(true);
-      setIsPaymentLoading(false);
-      dispatch(setSelectedSlotSession({}));
-    }
-    return () => {
-      setIsPaymentSuccess(false);
-    };
-  }, [setIsPaymentSuccess, paymentDetails.length, dispatch]);
+  // useEffect(() => {
+  //   if (Platform.OS === "android" && paymentDetails.length) {
+  //     setIsPaymentSuccess(true);
+  //     setIsPaymentLoading(false);
+  //     dispatch(setSelectedSlotSession({}));
+  //   }
+  //   return () => {
+  //     setIsPaymentSuccess(false);
+  //   };
+  // }, [setIsPaymentSuccess, paymentDetails.length, dispatch]);
 
   return (
     <Modal visible={isPaymentModalOpen} animationType="slide" transparent>

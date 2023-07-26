@@ -17,7 +17,9 @@ import {
   Linking,
   Button,
   Text,
+  TextInput,
 } from "react-native";
+import Feather from "react-native-vector-icons/Feather";
 import { FontSize } from "styles/sizes";
 import { StyleSheet } from "react-native";
 import auth, { firebase } from "@react-native-firebase/auth";
@@ -28,6 +30,14 @@ import geohash from "ngeohash";
 import haversine from "haversine-distance";
 import ActivityLoader from "components/ActivityLoader";
 import CustomGreenButton from "components/CustomGreenButton";
+import Card from "components/Dashboard/Card";
+import DashboardFilter from "components/DashboardFilter";
+import { useDispatch } from "react-redux";
+import {
+  setFilterEndTime,
+  setFilterStartTime,
+  setFilterTurfSize,
+} from "redux/actions/actions";
 
 interface IProps extends NavigationProps {
   userData: any;
@@ -58,11 +68,22 @@ const boxes = [
 ];
 
 const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
+  const dispatch = useDispatch();
+
   const [listItems, setListItems] = useState([]);
   const [showLoader, setLoader] = useState(false);
   const [locationPermission, setLocationPermission] = useState(false);
+  const [isFilterVisible, setFilterVisible] = useState(false);
+  const [turfSize, setTurfSize] = useState([]);
+  const [turfTime, setTurfTime] = useState([]);
 
   const userCurrentId = auth().currentUser?.uid;
+
+  useEffect(() => {
+    dispatch(setFilterTurfSize(turfSize));
+    dispatch(setFilterStartTime(turfTime));
+    dispatch(setFilterEndTime(turfTime));
+  }, [turfSize, turfTime]);
   useEffect(() => {
     let userSubscriber: any = null;
     const subscriber = auth().onAuthStateChanged((user) => {
@@ -179,10 +200,35 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
       });
   };
 
-  // const [isModalVisible, setModalVisible] = useState(false);
   return (
     <React.Fragment>
       <HeaderBar showHelp={true} showBack={false} />
+      <View style={{ marginVertical: 15 }}>
+        <Feather
+          name="search"
+          size={20}
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            left: 30,
+            alignSelf: "center",
+            top: "30%",
+          }}
+          color="grey"
+        />
+        <TextInput
+          placeholder="Search by venue and location"
+          style={{
+            borderWidth: 1,
+            padding: 15,
+            paddingLeft: "13%",
+            marginHorizontal: 15,
+            borderRadius: 10,
+            backgroundColor: "#e0e0e0",
+            borderColor: "#e0e0e0",
+          }}
+        />
+      </View>
       <FlatList
         data={listItems}
         contentContainerStyle={{ paddingBottom: 60 }}
@@ -229,117 +275,56 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         }
         ListHeaderComponent={
           <React.Fragment>
-            {locationPermission ? (
-              <HeadLine style={styles.headLine}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "flex-end",
+                justifyContent: "space-between",
+                paddingHorizontal: 15,
+                marginBottom: 15,
+              }}
+            >
+              <HeadLine>
                 <CardBlackText style={{ fontWeight: "bold" }} marginLeft={0}>
-                  {I18nContext.getString("most_popular")}
+                  {I18nContext.getString("available_venues")}
                 </CardBlackText>
               </HeadLine>
-            ) : null}
-            {!showLoader && locationPermission ? (
-              <React.Fragment>
-                <FlatList
-                  data={listItems}
-                  style={{ padding: 16 }}
-                  horizontal={true}
-                  keyExtractor={(item) => item.docId}
-                  renderItem={({ item, index, separators }) => (
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigation.navigate("PlaceDetails", {
-                          params: item,
-                        });
-                      }}
-                    >
-                      <View style={{ marginRight: 16 }}>
-                        <Image
-                          style={{ width: 160, height: 160, borderRadius: 12 }}
-                          source={{ uri: item.images[0] }}
-                        />
-                        <CardBlackText
-                          style={{ fontWeight: 500, marginTop: 6 }}
-                          fontSize={FontSize.sm}
-                          marginLeft={0}
-                        >
-                          {item.name}
-                        </CardBlackText>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-                <HeadLine style={styles.headLine}>
-                  <CardBlackText style={{ fontWeight: "bold" }} marginLeft={0}>
-                    {I18nContext.getString("available_venues")}
-                  </CardBlackText>
-                </HeadLine>
-              </React.Fragment>
-            ) : null}
+              <Feather
+                name="filter"
+                size={24}
+                onPress={() => setFilterVisible(true)}
+              />
+            </View>
           </React.Fragment>
         }
         keyExtractor={(item) => item.docId}
-        renderItem={({ item, index, separators }) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
+            activeOpacity={0.8}
             onPress={() => {
               navigation.navigate("PlaceDetails", {
                 params: item,
               });
             }}
+            style={{
+              paddingHorizontal: 15,
+            }}
           >
-            <View key={index} style={{ padding: 16 }}>
-              <View style={{ flexDirection: "row" }}>
-                <CardBlackText
-                  style={{ fontWeight: 500 }}
-                  fontSize={FontSize.sm}
-                  marginLeft={0}
-                >
-                  {item.name}
-                </CardBlackText>
-                <View
-                  style={{
-                    alignItems: "baseline",
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                  }}
-                >
-                  <RatingView />
-                </View>
-              </View>
-
-              <CardGreyText marginLeft={0}>{item.location}</CardGreyText>
-              <CardGreyText marginLeft={0}>({item.distance})</CardGreyText>
-              <Image
-                style={{
-                  height: 170,
-                  marginTop: 8,
-                  width: "100%",
-                  borderRadius: 12,
-                }}
-                source={{ uri: item.images[0] }}
-              />
-            </View>
-            <View
-              style={{
-                borderColor: "#808694",
-                borderWidth: 0.3,
-                marginTop: 12,
-                opacity: 0.3,
-              }}
-            ></View>
+            <Card
+              venueDetails={item}
+              setTurfSize={setTurfSize}
+              turfSize={turfSize}
+              turfTime={turfTime}
+              setTurfTime={setTurfTime}
+            />
           </TouchableOpacity>
         )}
       />
-      {/* <TouchableOpacity
-        onPress={handleBooking}
-        style={{
-          alignSelf: "center",
-          marginTop: 200,
-          borderWidth: 1,
-          width: "40%",
-        }}
-      >
-        <Text>click me</Text>
-      </TouchableOpacity> */}
+
+      <DashboardFilter
+        isFilterVisible={isFilterVisible}
+        setFilterVisible={setFilterVisible}
+      />
     </React.Fragment>
   );
 };

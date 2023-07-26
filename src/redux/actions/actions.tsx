@@ -55,3 +55,38 @@ export const setSelectedSlotSession = (slotSession: any) => {
     slotSession,
   };
 };
+
+export const setFilterTurfSize = (turfSizes: any[]) => {
+  return {
+    type: Types.SET_FILTER_TURF_SIZE,
+    turfSizes,
+  };
+};
+
+export const setFilterPrice = (price: any) => {
+  return {
+    type: Types.SET_FILTER_PRICE,
+    price,
+  };
+};
+
+export const setFilterSlots = (slots: any) => {
+  return {
+    type: Types.SET_FILTER_SLOTS,
+    slots,
+  };
+};
+
+export const setFilterStartTime = (startTime: any) => {
+  return {
+    type: Types.SET_FILTER_START_TIME,
+    startTime,
+  };
+};
+
+export const setFilterEndTime = (endTime: any) => {
+  return {
+    type: Types.SET_FILTER_END_TIME,
+    endTime,
+  };
+};

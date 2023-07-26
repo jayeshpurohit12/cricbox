@@ -313,14 +313,16 @@ const BookingSummary = ({ route }) => {
         )}
       </TouchableOpacity>
 
-      <PaymentModal
-        isPaymentModalOpen={isPaymentModalOpen}
-        setIsPaymentModalOpen={setIsPaymentModalOpen}
-        setIsPaymentSuccess={setIsPaymentSuccess}
-        userDetails={userDetails}
-        setIsPaymentLoading={setIsPaymentLoading}
-        paymentDetails={paymentDetails}
-      />
+      {paymentDetails[0] && (
+        <PaymentModal
+          isPaymentModalOpen={isPaymentModalOpen}
+          setIsPaymentModalOpen={setIsPaymentModalOpen}
+          setIsPaymentSuccess={setIsPaymentSuccess}
+          userDetails={userDetails}
+          setIsPaymentLoading={setIsPaymentLoading}
+          paymentDetails={paymentDetails}
+        />
+      )}
     </View>
   );
 };
