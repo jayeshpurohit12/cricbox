@@ -40,16 +40,19 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
       .signInWithEmailAndPassword(values.email, values.password)
       .then((userData) => {
         setLoader(false);
-        if (userData.user.emailVerified) {
+        if (userData.user) {
+          console.log("userData", userData.user);
+
           resetForm();
-          setTimeout(() => {
-            // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
-            navigation.navigate("TabNavigation");
-          }, 700);
-        } else {
-          userData.user.sendEmailVerification();
-          commonService.showToast("error", "email_not_verified");
+          // setTimeout(() => {
+          // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
+          navigation.navigate("TabNavigation");
+          // }, 700);
         }
+        // } else {
+        //   userData.user.sendEmailVerification();
+        //   commonService.showToast("error", "email_not_verified");
+        // }
       })
       .catch((error) => {
         setLoader(false);

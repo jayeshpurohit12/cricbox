@@ -52,7 +52,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
   const [pushTokenData, setPushTokenData] = useState({} as IRegistration);
   const [showLoader, setLoader] = useState(false);
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
-  function onAuthStateChanged(user:any) {
+  function onAuthStateChanged(user: any) {
     if (user) {
       // Some Android devices can automatically process the verification code (OTP) message, and the user would NOT need to enter the code.
       // Actually, if he/she tries to enter it, he/she will get an error message because the code was already used in the background.
@@ -78,34 +78,25 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
   };
   const submit = async (values: IRegistration, resetForm: () => void) => {
     setLoader(true);
-    const confirmation = await auth().signInWithPhoneNumber(`+91${values.phone}`);
-    console.log("consirmation:",confirmation);
+    const confirmation = await auth().signInWithPhoneNumber(
+      `+91${values.phone}`,
+    );
     auth()
       .createUserWithEmailAndPassword(values.email, values.password)
       .then((userData) => {
-        userData.user.sendEmailVerification();
-        
-        firestore()
-          .collection("Users")
-          .doc(userData.user.uid)
-          .set({
-            ...pushTokenData,
-            fullName: values.fullName,
-            email: values.email,
-            phone: values.phone,
-            role: toggleCheckBox ? "box-admin" : "normal",
-            userId: userData.user.uid,
-            dateISO: moment().toISOString(),
-            milliseconds: moment().valueOf(),
-          })
-          .then(() => {
-            commonService.showToast("success", "user_crated");
-            setLoader(false);
-            resetForm();
-            navigation.navigate("VerifyCode",{confirm:confirmation});
-          });
+        // userData.user.sendEmailVerification();
+        commonService.showToast("success", "user_crated");
+        setLoader(false);
+        resetForm();
+        navigation.navigate("VerifyCode", {
+          confirmation,
+          userData,
+          values,
+          pushTokenData,
+          toggleCheckBox,
+        });
       })
-      
+
       .catch((error) => {
         setLoader(false);
         if (error.code === "auth/email-already-in-use") {
