@@ -79,6 +79,8 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
 
   const userCurrentId = auth().currentUser?.uid;
 
+  // console.log(listItems, "listItems...");
+
   useEffect(() => {
     dispatch(setFilterTurfSize(turfSize));
     dispatch(setFilterStartTime(turfTime));
@@ -175,7 +177,6 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
                   { lat: latitude, lng: longitude },
                   { lat: documentData.lat, lng: documentData.long },
                 ); //Results in meters (default)
-                console.log(haversine_m, "haversine_m");
                 const haversine_km = haversine_m / 1000; //Results in
                 documentData.distance = haversine_km.toFixed(2) + " km";
                 data.push({ ...documentData, docId: document.id });

@@ -90,3 +90,31 @@ export const setFilterEndTime = (endTime: any) => {
     endTime,
   };
 };
+
+export const setSelectedTurfSize = (selectedTurfSize: any) => {
+  return {
+    type: Types.SET_SELECTED_TURF_SIZE,
+    selectedTurfSize,
+  };
+};
+
+export const setSelectedPrice = (selectedPrice: any) => {
+  return {
+    type: Types.SET_SELECTED_PRICE,
+    selectedPrice,
+  };
+};
+
+export const setSelectedStartTime = (selectedStartTime: any) => {
+  return {
+    type: Types.SET_SELECTED_START_TIME,
+    selectedStartTime,
+  };
+};
+
+export const setSelectedEndTime = (selectedEndTime: any) => {
+  return {
+    type: Types.SET_SELECTED_END_TIME,
+    selectedEndTime,
+  };
+};

@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-} from "react-native";
+import { View, Text, Modal, TouchableOpacity, FlatList } from "react-native";
 import React from "react";
 import Entypo from "react-native-vector-icons/Entypo";
 import FilterFields from "./FilterFields";
@@ -14,32 +7,14 @@ import { useSelector } from "react-redux";
 const DashboardFilter = ({ isFilterVisible, setFilterVisible }) => {
   const turfSize = useSelector((state) => state.FilterReducer.turfSize);
   const turfTime = useSelector((state) => state.FilterReducer.startTime);
+  const selectedTurfSize = useSelector(
+    (state) => state.FilterReducer.selectedTurfSize,
+  );
 
   const price = [
     { label: "Low to High", value: "low" },
     { label: "High to Low", value: "high" },
   ];
-
-  const slots = [
-    { label: "All", value: "All" },
-    { label: "Morning", value: "Morning" },
-    { label: "Afternoon", value: "Afternoon" },
-    { label: "Evening", value: "Evening" },
-    { label: "Night", value: "Night" },
-  ];
-
-  const timeSlots = [];
-
-  for (let hour = 6; hour < 21; hour++) {
-    const timeLabel = hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
-    const formattedLabel = hour === 12 ? `12 PM` : timeLabel;
-
-    timeSlots.push({ label: formattedLabel, value: formattedLabel });
-    // timeSlots.push({
-    //   label: `${formattedLabel}`,
-    //   value: formattedLabel,
-    // });
-  }
 
   return (
     <Modal animationType="slide" transparent visible={isFilterVisible}>
@@ -83,18 +58,25 @@ const DashboardFilter = ({ isFilterVisible, setFilterVisible }) => {
                 filterData={turfSize}
                 title="Turf Size"
                 zIndex={100}
+                uniqueKey="turfSize"
               />
-              <FilterFields filterData={price} title="Price" zIndex={80} />
-              <FilterFields filterData={slots} title="Slots" zIndex={60} />
+              <FilterFields
+                filterData={price}
+                title="Price"
+                zIndex={80}
+                uniqueKey="Price"
+              />
               <FilterFields
                 filterData={turfTime}
                 title="Start Time"
                 zIndex={50}
+                uniqueKey="startTime"
               />
               <FilterFields
                 filterData={turfTime}
                 title="End Time"
                 zIndex={49}
+                uniqueKey="endTime"
               />
 
               <TouchableOpacity

@@ -7,6 +7,10 @@ const initialState = {
   slots: [],
   startTime: [],
   endTime: [],
+  selectedTurfSize: "",
+  selectedPrice: "",
+  selectedStartTime: "",
+  selectedEndTime: "",
 };
 const FilterReducer = (state = initialState, actionData: any) => {
   switch (actionData.type) {
@@ -34,6 +38,26 @@ const FilterReducer = (state = initialState, actionData: any) => {
       return {
         ...state,
         endTime: actionData.endTime,
+      };
+    case Types.SET_SELECTED_TURF_SIZE:
+      return {
+        ...state,
+        selectedTurfSize: actionData.selectedTurfSize,
+      };
+    case Types.SET_SELECTED_PRICE:
+      return {
+        ...state,
+        selectedPrice: actionData.selectedPrice,
+      };
+    case Types.SET_SELECTED_START_TIME:
+      return {
+        ...state,
+        selectedStartTime: actionData.selectedStartTime,
+      };
+    case Types.SET_SELECTED_END_TIME:
+      return {
+        ...state,
+        selectedEndTime: actionData.selectedEndTime,
       };
 
     default:
