@@ -93,12 +93,12 @@ const DashboardFilter = ({
               />
 
               <TouchableOpacity
-                // disabled={
-                //   !selectedTurfSize ||
-                //   !selectedPrice ||
-                //   !selectedStartTime ||
-                //   !selectedEndTime
-                // }
+                disabled={
+                  !selectedTurfSize ||
+                  !selectedPrice ||
+                  !selectedStartTime ||
+                  !selectedEndTime
+                }
                 style={{
                   backgroundColor: "green",
                   padding: 15,

@@ -89,7 +89,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
     (state) => state.FilterReducer.selectedStartTime,
   );
   const selectedEndTime = useSelector(
-    (state) => state.FilterReducer.selectedTurfSize,
+    (state) => state.FilterReducer.selectedEndTime,
   );
 
   const userCurrentId = auth().currentUser?.uid;
@@ -254,19 +254,76 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
       }
     }
   };
+  const sortByPrice = (data, priceKey, sortOrder) => {
+    console.log("inside function pricekey:", priceKey);
+    console.log("inside function sortOrder:", sortOrder);
+    if (!["low", "high"].includes(sortOrder)) {
+      throw new Error(`Invalid sortOrder. Must be either "low" or "high".`);
+    }
+
+    const sortedData = [...data];
+
+    return sortedData.sort((a, b) => {
+      const priceA = a[priceKey];
+      const priceB = b[priceKey];
+
+      if (sortOrder === "low") {
+        return priceA - priceB;
+      } else {
+        return priceB - priceA;
+      }
+    });
+  };
+  const filterByTimeFrame = (data, startTime, endTime) => {
+    const convertTo24HourFormat = (timeString) => {
+      const [time, period] = timeString.split(" ");
+      console.log("time:", time);
+      console.log("period:", period);
+      const [hours, minutes] = time.split(":");
+      let hours24 = Number(hours);
+
+      if (period.toLowerCase() === "pm" && hours24 !== 12) {
+        hours24 += 12;
+      } else if (period.toLowerCase() === "am" && hours24 === 12) {
+        hours24 = 0;
+      }
+      const data = hours24 * 60 + Number(minutes);
+      console.log("data:", data);
+      return data;
+    };
+
+    const startMinutes = convertTo24HourFormat(startTime);
+    const endMinutes = convertTo24HourFormat(endTime);
+
+    const filteredData = data.filter((item) => {
+      const startTimeMinutes = convertTo24HourFormat(item.startTime);
+      const endTimeMinutes = convertTo24HourFormat(item.endTime);
+
+      return startTimeMinutes >= startMinutes && endTimeMinutes <= endMinutes;
+    });
+
+    return filteredData;
+  };
 
   const filterTurfs = () => {
-    console.log("data filteres");
-    console.log("selectedTurfSize:", selectedTurfSize);
-    console.log("selectedPrice:", selectedPrice);
+    // console.log("data filteres");
+    // console.log("selectedTurfSize:", selectedTurfSize);
+    // console.log("selectedPrice:", selectedPrice);
     console.log("selectedStartTime:", selectedStartTime);
     console.log("selectedEndTime:", selectedEndTime);
-    // let filteredData = listItems.filter((item: any) =>
-    //   item.boxDimension.includes(selectedTurfSize),
-    // );
-    // setFilteredListItems(filteredData);
-    // const priceKey = getPriceKey(new Date().toISOString());
-    // console.log("pricekey:", priceKey);
+    let filteredData;
+    filteredData = listItems.filter((item: any) =>
+      item.boxDimension.includes(selectedTurfSize),
+    );
+    const priceKey = getPriceKey(new Date().toISOString());
+    filteredData = sortByPrice(filteredData, priceKey, selectedPrice);
+    filteredData = filterByTimeFrame(
+      filteredData,
+      selectedStartTime,
+      selectedEndTime,
+    );
+    setFilteredListItems(filteredData);
+    console.log("pricekey:", priceKey);
     setFilterVisible(false);
   };
 
