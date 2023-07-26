@@ -32,12 +32,13 @@ import ActivityLoader from "components/ActivityLoader";
 import CustomGreenButton from "components/CustomGreenButton";
 import Card from "components/Dashboard/Card";
 import DashboardFilter from "components/DashboardFilter";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setFilterEndTime,
   setFilterStartTime,
   setFilterTurfSize,
 } from "redux/actions/actions";
+import { set } from "react-native-reanimated";
 
 interface IProps extends NavigationProps {
   userData: any;
@@ -76,6 +77,20 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   const [isFilterVisible, setFilterVisible] = useState(false);
   const [turfSize, setTurfSize] = useState([]);
   const [turfTime, setTurfTime] = useState([]);
+  const [filteredListItems, setFilteredListItems] = useState([]);
+
+  const selectedTurfSize = useSelector(
+    (state) => state.FilterReducer.selectedTurfSize,
+  );
+  const selectedPrice = useSelector(
+    (state) => state.FilterReducer.selectedPrice,
+  );
+  const selectedStartTime = useSelector(
+    (state) => state.FilterReducer.selectedStartTime,
+  );
+  const selectedEndTime = useSelector(
+    (state) => state.FilterReducer.selectedTurfSize,
+  );
 
   const userCurrentId = auth().currentUser?.uid;
 
@@ -183,6 +198,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
               });
               setLoader(false);
               setListItems(data);
+              setFilteredListItems(data);
             },
             (error) => {
               setLoader(false);
@@ -199,6 +215,59 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         setLoader(false);
         // console.warn(code, message);
       });
+  };
+
+  const getPriceKey = (dateISO) => {
+    const date = new Date(dateISO);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const hour = date.getHours();
+    let timeOfDay;
+
+    if (hour >= 0 && hour < 6) {
+      timeOfDay = "Midnight";
+    } else if (hour >= 6 && hour < 12) {
+      timeOfDay = "Morning";
+    } else if (hour >= 12 && hour < 18) {
+      timeOfDay = "Afternoon/Evening";
+    } else {
+      timeOfDay = "Night";
+    }
+
+    if (isWeekend) {
+      if (timeOfDay === "Morning") {
+        return "weekendMorningPrice";
+      } else if (timeOfDay === "Afternoon/Evening") {
+        return "weekendEveningPrice";
+      } else if (timeOfDay === "Night") {
+        return "weekendNightPrice";
+      } else {
+        return "weekendMidNightPrice";
+      }
+    } else {
+      if (timeOfDay === "Morning") {
+        return "morningPrice";
+      } else if (timeOfDay === "Afternoon/Evening") {
+        return "eveningPrice";
+      } else {
+        return "midNightPrice";
+      }
+    }
+  };
+
+  const filterTurfs = () => {
+    console.log("data filteres");
+    console.log("selectedTurfSize:", selectedTurfSize);
+    console.log("selectedPrice:", selectedPrice);
+    console.log("selectedStartTime:", selectedStartTime);
+    console.log("selectedEndTime:", selectedEndTime);
+    // let filteredData = listItems.filter((item: any) =>
+    //   item.boxDimension.includes(selectedTurfSize),
+    // );
+    // setFilteredListItems(filteredData);
+    // const priceKey = getPriceKey(new Date().toISOString());
+    // console.log("pricekey:", priceKey);
+    setFilterVisible(false);
   };
 
   return (
@@ -231,12 +300,14 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         />
       </View>
       <FlatList
-        data={listItems}
+        data={filteredListItems}
         contentContainerStyle={{ paddingBottom: 60 }}
         ListEmptyComponent={
           <>
             {showLoader ? <ActivityLoader /> : null}
-            {!showLoader && locationPermission && listItems.length == 0 ? (
+            {!showLoader &&
+            locationPermission &&
+            filteredListItems.length == 0 ? (
               <CardBlackText style={{ textAlign: "center" }}>
                 {I18nContext.getString("no_places")}
               </CardBlackText>
@@ -325,6 +396,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
       <DashboardFilter
         isFilterVisible={isFilterVisible}
         setFilterVisible={setFilterVisible}
+        filterTurfs={filterTurfs}
       />
     </React.Fragment>
   );

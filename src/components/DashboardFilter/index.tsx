@@ -4,10 +4,23 @@ import Entypo from "react-native-vector-icons/Entypo";
 import FilterFields from "./FilterFields";
 import { useSelector } from "react-redux";
 
-const DashboardFilter = ({ isFilterVisible, setFilterVisible }) => {
+const DashboardFilter = ({
+  isFilterVisible,
+  setFilterVisible,
+  filterTurfs,
+}) => {
   const turfSize = useSelector((state) => state.FilterReducer.turfSize);
   const turfTime = useSelector((state) => state.FilterReducer.startTime);
   const selectedTurfSize = useSelector(
+    (state) => state.FilterReducer.selectedTurfSize,
+  );
+  const selectedPrice = useSelector(
+    (state) => state.FilterReducer.selectedPrice,
+  );
+  const selectedStartTime = useSelector(
+    (state) => state.FilterReducer.selectedStartTime,
+  );
+  const selectedEndTime = useSelector(
     (state) => state.FilterReducer.selectedTurfSize,
   );
 
@@ -80,11 +93,18 @@ const DashboardFilter = ({ isFilterVisible, setFilterVisible }) => {
               />
 
               <TouchableOpacity
+                // disabled={
+                //   !selectedTurfSize ||
+                //   !selectedPrice ||
+                //   !selectedStartTime ||
+                //   !selectedEndTime
+                // }
                 style={{
                   backgroundColor: "green",
                   padding: 15,
                   borderRadius: 10,
                 }}
+                onPress={filterTurfs}
               >
                 <Text
                   style={{
