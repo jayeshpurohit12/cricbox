@@ -317,28 +317,23 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
     setFilteredListItems(filteredData);
     setFilterVisible(false);
   };
-  const filterData = () => {
-    if (filteredListItems) {
-      const filteredData = listItems.filter((item) => {
-        const { location, name } = item;
-        const lowerCaseSearchString = searchText.toLowerCase();
-        return (
-          location.toLowerCase().includes(lowerCaseSearchString) ||
-          name.toLowerCase().includes(lowerCaseSearchString)
-        );
-      });
-      setFilteredListItems(filteredData);
-    }
-    setSearchText("");
+  const filterData = (text) => {
+    setSearchText(text);
+    const filteredData = listItems.filter((item) => {
+      const { location, name } = item;
+      const lowerCaseSearchString = text.toLowerCase();
+      return (
+        location.toLowerCase().includes(lowerCaseSearchString) ||
+        name.toLowerCase().includes(lowerCaseSearchString)
+      );
+    });
+    setFilteredListItems(filteredData);
   };
   return (
     <React.Fragment>
       <HeaderBar showHelp={true} showBack={false} />
       <View style={{ marginVertical: 15 }}>
         <Feather
-          onPress={() => {
-            filterData();
-          }}
           name="search"
           size={20}
           style={{
@@ -352,8 +347,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         />
         <TextInput
           onChangeText={(text) => {
-            // if (text.length === 0) setFilteredListItems(listItems);
-            setSearchText(text);
+            filterData(text);
           }}
           placeholder="Search by venue and location"
           value={searchText}
