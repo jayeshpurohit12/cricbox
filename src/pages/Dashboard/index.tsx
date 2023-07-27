@@ -78,6 +78,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   const [turfSize, setTurfSize] = useState([]);
   const [turfTime, setTurfTime] = useState([]);
   const [filteredListItems, setFilteredListItems] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   const selectedTurfSize = useSelector(
     (state) => state.FilterReducer.selectedTurfSize,
@@ -93,8 +94,6 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   );
 
   const userCurrentId = auth().currentUser?.uid;
-
-  // console.log(listItems, "listItems...");
 
   useEffect(() => {
     dispatch(setFilterTurfSize(turfSize));
@@ -255,8 +254,6 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
     }
   };
   const sortByPrice = (data, priceKey, sortOrder) => {
-    console.log("inside function pricekey:", priceKey);
-    console.log("inside function sortOrder:", sortOrder);
     if (!["low", "high"].includes(sortOrder)) {
       throw new Error(`Invalid sortOrder. Must be either "low" or "high".`);
     }
@@ -277,8 +274,6 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   const filterByTimeFrame = (data, startTime, endTime) => {
     const convertTo24HourFormat = (timeString) => {
       const [time, period] = timeString.split(" ");
-      console.log("time:", time);
-      console.log("period:", period);
       const [hours, minutes] = time.split(":");
       let hours24 = Number(hours);
 
@@ -288,7 +283,6 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         hours24 = 0;
       }
       const data = hours24 * 60 + Number(minutes);
-      console.log("data:", data);
       return data;
     };
 
@@ -306,32 +300,45 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   };
 
   const filterTurfs = () => {
-    // console.log("data filteres");
-    // console.log("selectedTurfSize:", selectedTurfSize);
-    // console.log("selectedPrice:", selectedPrice);
-    console.log("selectedStartTime:", selectedStartTime);
-    console.log("selectedEndTime:", selectedEndTime);
-    let filteredData;
-    filteredData = listItems.filter((item: any) =>
-      item.boxDimension.includes(selectedTurfSize),
-    );
+    let filteredData = [...listItems];
     const priceKey = getPriceKey(new Date().toISOString());
-    filteredData = sortByPrice(filteredData, priceKey, selectedPrice);
-    filteredData = filterByTimeFrame(
-      filteredData,
-      selectedStartTime,
-      selectedEndTime,
-    );
+    if (selectedPrice)
+      filteredData = sortByPrice(filteredData, priceKey, selectedPrice);
+    if (selectedTurfSize)
+      filteredData = listItems.filter((item: any) =>
+        item.boxDimension.includes(selectedTurfSize),
+      );
+    if (selectedStartTime && selectedEndTime)
+      filteredData = filterByTimeFrame(
+        filteredData,
+        selectedStartTime,
+        selectedEndTime,
+      );
     setFilteredListItems(filteredData);
-    console.log("pricekey:", priceKey);
     setFilterVisible(false);
   };
-
+  const filterData = () => {
+    if (filteredListItems) {
+      const filteredData = listItems.filter((item) => {
+        const { location, name } = item;
+        const lowerCaseSearchString = searchText.toLowerCase();
+        return (
+          location.toLowerCase().includes(lowerCaseSearchString) ||
+          name.toLowerCase().includes(lowerCaseSearchString)
+        );
+      });
+      setFilteredListItems(filteredData);
+    }
+    setSearchText("");
+  };
   return (
     <React.Fragment>
       <HeaderBar showHelp={true} showBack={false} />
       <View style={{ marginVertical: 15 }}>
         <Feather
+          onPress={() => {
+            filterData();
+          }}
           name="search"
           size={20}
           style={{
@@ -344,7 +351,12 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
           color="grey"
         />
         <TextInput
+          onChangeText={(text) => {
+            // if (text.length === 0) setFilteredListItems(listItems);
+            setSearchText(text);
+          }}
           placeholder="Search by venue and location"
+          value={searchText}
           style={{
             borderWidth: 1,
             padding: 15,

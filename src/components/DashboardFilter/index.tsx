@@ -23,6 +23,7 @@ const DashboardFilter = ({
   const selectedEndTime = useSelector(
     (state) => state.FilterReducer.selectedEndTime,
   );
+  
 
   const price = [
     { label: "Low to High", value: "low" },
@@ -93,12 +94,6 @@ const DashboardFilter = ({
               />
 
               <TouchableOpacity
-                disabled={
-                  !selectedTurfSize ||
-                  !selectedPrice ||
-                  !selectedStartTime ||
-                  !selectedEndTime
-                }
                 style={{
                   backgroundColor: "green",
                   padding: 15,
