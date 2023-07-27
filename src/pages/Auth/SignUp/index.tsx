@@ -94,6 +94,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
           values,
           pushTokenData,
           toggleCheckBox,
+          phone: `+91${values.phone}`,
         });
       })
 

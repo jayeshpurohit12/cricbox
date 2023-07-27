@@ -331,7 +331,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   };
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={false} dummyLeft />
       <View style={{ marginVertical: 15 }}>
         <Feather
           name="search"

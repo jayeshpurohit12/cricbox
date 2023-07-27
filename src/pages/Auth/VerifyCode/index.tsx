@@ -20,18 +20,27 @@ import BottomText from "../../../components/BottomText";
 import { useRoute } from "@react-navigation/native";
 import moment from "moment";
 import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
 interface IProps extends NavigationProps {}
 
 const VerifyCode: React.FC<IProps> = ({ navigation }) => {
   const [otp, setOTP] = useState(["", "", "", "", "", ""]);
+  const [showLoader, setLoader] = useState(false);
+
   const refs = useRef([]);
 
   const theme = useTheme();
   const route = useRoute();
 
-  const { confirmation, userData, values, pushTokenData, toggleCheckBox } =
-    route.params;
+  const {
+    confirmation,
+    userData,
+    values,
+    pushTokenData,
+    toggleCheckBox,
+    phone,
+  } = route.params;
   const formatTime = (remainingTime) => {
     let minutes = Math.floor(remainingTime / 60).toString();
     let seconds = (remainingTime % 60).toString();
@@ -45,6 +54,7 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
     return `${minutes}:${seconds}`;
   };
   async function confirmCode() {
+    setLoader(true);
     const code = otp.join("");
     console.log(code);
     try {
@@ -65,7 +75,9 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
           milliseconds: moment().valueOf(),
         });
       navigation.navigate("SignIn");
+      setLoader(false);
     } catch (error) {
+      setLoader(false);
       console.log("Invalid code.");
     }
   }
@@ -94,6 +106,15 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
     }
   };
 
+  const handleResend = async () => {
+    try {
+      await auth().signInWithPhoneNumber(phone);
+      console.log("Code Resent!");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <React.Fragment>
       <HeaderBar dummyRight={true} showBack={true} />
@@ -106,8 +127,8 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
             <SubtitleContainer>
               <RegularText textAlign={"center"}>
                 {I18nContext.getString("we_have_sent_verification_code_to")}
-                email{" "}
-                <RegularText color={"greenColor"}>test@gmail.com</RegularText>
+                Phone Number{" "}
+                <RegularText color={"greenColor"}>{phone}</RegularText>
               </RegularText>
             </SubtitleContainer>
           </SpaceContainer>
@@ -132,7 +153,7 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
             </OtpContainer>
           </SpaceContainer>
           <CustomGreenButton
-            showLoader={false}
+            showLoader={showLoader}
             text={"verify"}
             onPress={() => confirmCode()}
           />
@@ -158,7 +179,7 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
             <BottomText
               firstText={"did_not_receive_code"}
               secondText={"resend"}
-              onPress={() => ""}
+              onPress={handleResend}
             />
           </SpaceContainer>
         </AppScrollView>
