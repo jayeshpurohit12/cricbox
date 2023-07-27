@@ -84,7 +84,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
     auth()
       .createUserWithEmailAndPassword(values.email, values.password)
       .then((userData) => {
-        // userData.user.sendEmailVerification();
+        userData.user.sendEmailVerification();
         commonService.showToast("success", "user_crated");
         setLoader(false);
         resetForm();

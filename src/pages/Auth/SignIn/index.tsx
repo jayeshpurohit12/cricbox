@@ -36,11 +36,11 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
   const submit = async (values: ILogin, resetForm: () => void) => {
     // navigation.navigate("ForgotUsername");
     setLoader(true);
-    auth()
+    await auth()
       .signInWithEmailAndPassword(values.email, values.password)
       .then((userData) => {
         setLoader(false);
-        if (userData.user) {
+        if (userData.user.emailVerified) {
           console.log("userData", userData.user);
 
           resetForm();
@@ -48,11 +48,10 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
             // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
             navigation.navigate("TabNavigation");
           }, 700);
+        } else {
+          userData.user.sendEmailVerification();
+          commonService.showToast("error", "email_not_verified");
         }
-        // } else {
-        //   userData.user.sendEmailVerification();
-        //   commonService.showToast("error", "email_not_verified");
-        // }
       })
       .catch((error) => {
         setLoader(false);
