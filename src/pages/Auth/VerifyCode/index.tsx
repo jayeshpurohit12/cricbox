@@ -49,6 +49,8 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
     console.log(code);
     try {
       await confirmation.confirm(code);
+      console.log("successfully...");
+
       firestore()
         .collection("Users")
         .doc(userData.user.uid)

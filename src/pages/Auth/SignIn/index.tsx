@@ -44,10 +44,10 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
           console.log("userData", userData.user);
 
           resetForm();
-          // setTimeout(() => {
-          // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
-          navigation.navigate("TabNavigation");
-          // }, 700);
+          setTimeout(() => {
+            // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
+            navigation.navigate("TabNavigation");
+          }, 700);
         }
         // } else {
         //   userData.user.sendEmailVerification();
