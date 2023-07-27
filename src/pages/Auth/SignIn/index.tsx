@@ -36,11 +36,13 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
   const submit = async (values: ILogin, resetForm: () => void) => {
     // navigation.navigate("ForgotUsername");
     setLoader(true);
-    auth()
+    await auth()
       .signInWithEmailAndPassword(values.email, values.password)
       .then((userData) => {
         setLoader(false);
         if (userData.user.emailVerified) {
+          console.log("userData", userData.user);
+
           resetForm();
           setTimeout(() => {
             // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });

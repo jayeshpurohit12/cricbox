@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "900769944562-6tf1m1d844hlbees3ostc31i3r62ivkn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cricbox",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "900769944562-msk0r7rke53i8bod9f4ufjn0h4ocf8s1.apps.googleusercontent.com",
           "client_type": 3
         }
