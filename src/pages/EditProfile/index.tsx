@@ -96,29 +96,46 @@ const EditProfile = () => {
       const sourceUrl =
         Platform.OS === "ios" ? imageFiles?.sourceURL : imageFiles?.path;
       const fileName = sourceUrl?.substring(sourceUrl?.lastIndexOf("/") + 1);
-      const reference = storage().ref(imageFiles?.filename ?? fileName);
-      const uploadUri =
-        Platform.OS === "ios"
-          ? imageFiles?.sourceURL?.replace("file://", "")
-          : imageFiles?.path;
-      await reference.putFile(uploadUri);
-      const url = await reference.getDownloadURL();
+      if (!imageFiles) {
+        const docRef = firebase
+          .firestore()
+          .collection("Users")
+          .doc(userDetails?.userId);
 
-      const docRef = firebase
-        .firestore()
-        .collection("Users")
-        .doc(userDetails?.userId);
+        const data = {
+          fullName: `${values?.firstName} ${values?.lastName}`,
+          phone: values?.phoneNumber,
+        };
 
-      const data = {
-        fullName: `${values?.firstName} ${values?.lastName}`,
-        phone: values?.phoneNumber,
-        profileUrl: url,
-      };
+        docRef.update(data).then(() => {
+          navigation.navigate("Profile");
+          setLoader(false);
+        });
+      } else {
+        const reference = storage().ref(imageFiles?.filename ?? fileName);
+        const uploadUri =
+          Platform.OS === "ios"
+            ? imageFiles?.sourceURL?.replace("file://", "")
+            : imageFiles?.path;
+        await reference.putFile(uploadUri);
+        const url = await reference.getDownloadURL();
 
-      docRef.update(data).then(() => {
-        navigation.navigate("Profile");
-        setLoader(false);
-      });
+        const docRef = firebase
+          .firestore()
+          .collection("Users")
+          .doc(userDetails?.userId);
+
+        const data = {
+          fullName: `${values?.firstName} ${values?.lastName}`,
+          phone: values?.phoneNumber,
+          profileUrl: url,
+        };
+
+        docRef.update(data).then(() => {
+          navigation.navigate("Profile");
+          setLoader(false);
+        });
+      }
     } catch (error) {
       setLoader(false);
       console.log(error, "error...");
@@ -171,7 +188,12 @@ const EditProfile = () => {
           left: "55%",
         }}
       >
-        <MaterialIcons name="edit" size={18} color="white" />
+        <MaterialIcons
+          name="edit"
+          size={18}
+          color="white"
+          onPress={openImagePicker}
+        />
       </View>
       <Formik
         validationSchema={validationSchema}
@@ -211,6 +233,7 @@ const EditProfile = () => {
                 inputName="Phone"
                 value={values?.phoneNumber}
                 isNumber
+                isDisabled
                 onChangeText={(text) => {
                   setFieldValue("phoneNumber", text);
                   setFieldTouched("phoneNumber", true);

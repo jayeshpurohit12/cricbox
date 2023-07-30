@@ -98,7 +98,7 @@ const Card = ({
           }}
         >
           <MaterialIcons name="sports-cricket" size={22} color="grey" />
-          <TouchableOpacity
+          <View
             style={{
               borderWidth: 1,
               borderRadius: 5,
@@ -115,7 +115,7 @@ const Card = ({
             >
               Book
             </Text>
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>

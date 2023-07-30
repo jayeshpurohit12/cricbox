@@ -78,36 +78,47 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
   };
   const submit = async (values: IRegistration, resetForm: () => void) => {
     setLoader(true);
-    const confirmation = await auth().signInWithPhoneNumber(
-      `+91${values.phone}`,
-    );
-    auth()
-      .createUserWithEmailAndPassword(values.email, values.password)
-      .then((userData) => {
-        userData.user.sendEmailVerification();
-        commonService.showToast("success", "user_crated");
-        setLoader(false);
-        resetForm();
-        navigation.navigate("VerifyCode", {
-          confirmation,
-          userData,
-          values,
-          pushTokenData,
-          toggleCheckBox,
-          phone: `+91${values.phone}`,
-        });
-      })
 
-      .catch((error) => {
-        setLoader(false);
-        if (error.code === "auth/email-already-in-use") {
-          commonService.showToast("error", "email_in_use");
-        } else if (error.code === "auth/invalid-email") {
-          commonService.showToast("error", "invalid_email");
-        } else {
-          commonService.showToast("error", "default_error");
-        }
-      });
+    const userExists = await firestore()
+      .collection("Users")
+      .where("phone", "==", values.phone)
+      .get();
+    const snapQuery = userExists?.docs[0]?.data();
+
+    if (snapQuery) {
+      commonService.showToast("error", "phone_already_registered");
+      setLoader(false);
+    } else {
+      auth()
+        .createUserWithEmailAndPassword(values.email, values.password)
+        .then(async (userData) => {
+          const confirmation = await auth().signInWithPhoneNumber(
+            `+91${values.phone}`,
+          );
+          userData.user.sendEmailVerification();
+          commonService.showToast("success", "user_crated");
+          setLoader(false);
+          resetForm();
+          navigation.navigate("VerifyCode", {
+            confirmation,
+            userData,
+            values,
+            pushTokenData,
+            toggleCheckBox,
+            phone: `+91${values.phone}`,
+          });
+        })
+        .catch((error) => {
+          setLoader(false);
+          if (error.code === "auth/email-already-in-use") {
+            commonService.showToast("error", "email_in_use");
+          } else if (error.code === "auth/invalid-email") {
+            commonService.showToast("error", "invalid_email");
+          } else {
+            commonService.showToast("error", "default_error");
+          }
+        });
+    }
   };
   return (
     <React.Fragment>
