@@ -12,8 +12,12 @@ const UpcomingBooking = () => {
 
   const currentUserId = firebase.auth().currentUser?.uid;
 
-  const currentDate = moment().format("DD MMM YYYY");
+  const currentDate = moment().format("YYYY-MM-DD");
   const currentTime = moment().format("hh:mm A");
+
+  useEffect(() => {
+    getUpcomingBookingData();
+  }, [getUpcomingBookingData]);
 
   const getUpcomingBookingData = async () => {
     try {
@@ -49,7 +53,7 @@ const UpcomingBooking = () => {
           return (
             (bookingDate > currentDate ||
               (bookingDate === currentDate &&
-                !compareTime(bookingTime, currentTime))) &&
+                compareTime(bookingTime, currentTime))) &&
             paymentStatus === "SUCCESS"
           );
         });

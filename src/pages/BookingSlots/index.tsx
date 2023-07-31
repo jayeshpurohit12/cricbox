@@ -152,10 +152,22 @@ const BookingSlots = ({ route }) => {
     },
   ];
 
-  const isDisabled = soltAvail.find(
-    (item) =>
-      timeSlots.includes(item.slot) && item.numberOfTurfAvail === numberOfTurf,
-  );
+  soltAvail.forEach((item) => {
+    if (
+      timeSlots.includes(item.slot) &&
+      item.numberOfTurfAvail === numberOfTurf
+    ) {
+      // isDisabled.push(item);
+      item.disabled = true;
+    }
+  });
+
+  console.log(soltAvail, "soltAvail..");
+
+  // const isDisabled = soltAvail.find(
+  //   (item) =>
+  //     timeSlots.includes(item.slot) && item.numberOfTurfAvail === numberOfTurf,
+  // );
 
   const format = "hh:mm A";
 
@@ -396,6 +408,7 @@ const BookingSlots = ({ route }) => {
 
         const querySnapshot = await bookedSlotCollectionRef
           .where("date", "==", selectedDate)
+          .where("placeId", "==", placeId)
           .get();
 
         const bookedSlots = querySnapshot.docs.reduce((result, doc) => {
@@ -408,6 +421,7 @@ const BookingSlots = ({ route }) => {
               result.push(slot);
             }
           });
+
           return result;
         }, []);
         setSlotAvail(bookedSlots);
@@ -439,13 +453,21 @@ const BookingSlots = ({ route }) => {
         // contentContainerStyle={{ paddingBottom: "25%" }}
         style={{ marginBottom: "23%" }}
       >
-        {timeSlots.map((slot) => (
+        {timeSlots.map((slot, i) => (
           <TimeSlotItem
             key={slot}
             slot={slot}
             isSelected={isSlotSelected(slot)}
             onPress={() => handleSlotSelection(slot)}
-            isDisabled={isDisabled}
+            isDisabled={
+              soltAvail[
+                soltAvail?.findIndex(
+                  (item) =>
+                    item.slot === slot &&
+                    item.numberOfTurfAvail === numberOfTurf,
+                )
+              ]
+            }
             selectedDate={selectedDate}
           />
         ))}

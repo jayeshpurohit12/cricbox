@@ -221,7 +221,7 @@ const BookingSummary = ({ route }) => {
     long: long,
     turfDimensions: boxDimension,
     phoneNumber: loggedInUser?.phone,
-    turfBookingDate: moment(date, "YYYY-MM-DD").format("DD MMM YYYY"),
+    turfBookingDate: moment(date, "YYYY-MM-DD").format("YYYY-MM-DD"),
     startTime: parsedSlots[0]?.startTime,
     endTime: parsedSlots[selectedSlots.length - 1]?.endTime,
     totalPrice: totalPrice,

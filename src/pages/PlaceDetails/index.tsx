@@ -71,8 +71,6 @@ const PlaceDetails: React.FC<IProps> = ({ route, navigation, userData }) => {
     Linking.openURL(url);
   };
 
-  console.log(placeDetails?.params, "placeDetails?.params");
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
