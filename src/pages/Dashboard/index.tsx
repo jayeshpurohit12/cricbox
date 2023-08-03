@@ -353,7 +353,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
           value={searchText}
           style={{
             borderWidth: 1,
-            padding: 15,
+            padding: 8,
             paddingLeft: "13%",
             marginHorizontal: 15,
             borderRadius: 10,
@@ -420,13 +420,16 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
               }}
             >
               <HeadLine>
-                <CardBlackText style={{ fontWeight: "bold" }} marginLeft={0}>
+                <CardBlackText
+                  style={{ fontWeight: "bold", fontSize: 17 }}
+                  marginLeft={0}
+                >
                   {I18nContext.getString("available_venues")}
                 </CardBlackText>
               </HeadLine>
               <Feather
                 name="filter"
-                size={24}
+                size={22}
                 onPress={() => setFilterVisible(true)}
               />
             </View>

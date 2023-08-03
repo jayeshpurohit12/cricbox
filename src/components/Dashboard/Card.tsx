@@ -75,7 +75,7 @@ const Card = ({
     <View style={{ marginBottom: 25, flexDirection: "row" }}>
       <Image
         source={{ uri: venueDetails?.images[0] }}
-        style={{ width: 170, height: 120, borderRadius: 10 }}
+        style={{ width: "48%", height: 120, borderRadius: 10 }}
       />
       <View style={{ marginLeft: 15, width: "48%" }}>
         <Text

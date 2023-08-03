@@ -27,10 +27,10 @@ export const Input = ({
   onError,
 }) => {
   return (
-    <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
+    <View style={{ paddingHorizontal: 15, marginTop: 20 }}>
       <Text
         style={{
-          marginBottom: 20,
+          marginBottom: 5,
           fontSize: 12,
           color: "grey",
           fontWeight: "700",
@@ -144,56 +144,58 @@ const EditProfile = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      {userDetails?.profileUrl || imageFiles ? (
-        <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
-          <Image
-            source={{
-              uri:
-                Platform.OS === "ios"
-                  ? imageFiles?.sourceURL
-                    ? imageFiles?.path
-                    : userDetails?.profileUrl
-                  : "",
-            }}
-            style={{
-              width: 100,
-              height: 100,
-              borderRadius: 50,
-              alignSelf: "center",
-              marginTop: 20,
-            }}
-          />
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
-          <Icon
-            name="user-circle"
-            size={100}
-            color="#e0e0e0"
-            style={{ marginTop: 20, alignSelf: "center" }}
+      <View>
+        {userDetails?.profileUrl || imageFiles ? (
+          <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
+            <Image
+              source={{
+                uri:
+                  Platform.OS === "ios"
+                    ? imageFiles?.sourceURL
+                      ? imageFiles?.path
+                      : imageFiles?.path
+                    : userDetails?.profileUrl,
+              }}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                alignSelf: "center",
+                marginTop: 20,
+              }}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
+            <Icon
+              name="user-circle"
+              size={100}
+              color="#e0e0e0"
+              style={{ marginTop: 20, alignSelf: "center" }}
+              onPress={openImagePicker}
+            />
+          </TouchableOpacity>
+        )}
+
+        <View
+          style={{
+            borderWidth: 1,
+            borderRadius: 30,
+            padding: 5,
+            position: "absolute",
+            backgroundColor: "blue",
+            borderColor: "blue",
+            bottom: 0,
+            left: "54%",
+          }}
+        >
+          <MaterialIcons
+            name="edit"
+            size={18}
+            color="white"
             onPress={openImagePicker}
           />
-        </TouchableOpacity>
-      )}
-
-      <View
-        style={{
-          borderWidth: 1,
-          borderRadius: 30,
-          padding: 5,
-          position: "absolute",
-          backgroundColor: "blue",
-          borderColor: "blue",
-          top: "12.5%",
-          left: "55%",
-        }}
-      >
-        <MaterialIcons
-          name="edit"
-          size={18}
-          color="white"
-          onPress={openImagePicker}
-        />
+        </View>
       </View>
       <Formik
         validationSchema={validationSchema}
