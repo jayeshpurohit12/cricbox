@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import * as Yup from "yup";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -85,9 +85,13 @@ const EditProfile = () => {
       mediaType: "photo",
       selectionLimit: 1,
       includeExif: true,
-    }).then((images) => {
-      setImageFiles(images);
-    });
+    })
+      .then((images) => {
+        console.log(images, "log...");
+
+        setImageFiles(images);
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleUpdate = async (values) => {

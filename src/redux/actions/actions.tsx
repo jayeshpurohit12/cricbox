@@ -118,3 +118,17 @@ export const setSelectedEndTime = (selectedEndTime: any) => {
     selectedEndTime,
   };
 };
+
+export const setUserDetails = (userDetails: any) => {
+  return {
+    type: Types.USER_DETAILS,
+    userDetails,
+  };
+};
+
+export const setSlotDisabled = (slotDisabled: any) => {
+  return {
+    type: Types.SET_SLOTD_DISABLED,
+    slotDisabled,
+  };
+};

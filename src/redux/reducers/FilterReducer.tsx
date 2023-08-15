@@ -11,6 +11,7 @@ const initialState = {
   selectedPrice: "",
   selectedStartTime: "",
   selectedEndTime: "",
+  slotDisabled: [],
 };
 const FilterReducer = (state = initialState, actionData: any) => {
   switch (actionData.type) {
@@ -58,6 +59,12 @@ const FilterReducer = (state = initialState, actionData: any) => {
       return {
         ...state,
         selectedEndTime: actionData.selectedEndTime,
+      };
+
+    case Types.SET_SLOTD_DISABLED:
+      return {
+        ...state,
+        slotDisabled: actionData.slotDisabled,
       };
 
     default:

@@ -27,6 +27,8 @@ import CheckBox from "@react-native-community/checkbox";
 import { BoxLabel } from "./style";
 import { View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
 
 interface IProps extends NavigationProps {}
 const validationSchema = Yup.object().shape({
@@ -36,22 +38,15 @@ const validationSchema = Yup.object().shape({
   email: Yup.string()
     .required("Please enter email.")
     .email("Please enter correct email."),
-  phone: Yup.string()
-    .required("Please enter phone number.")
-    .min(10, "Please enter valid number")
-    .max(10, "Please enter valid number"),
-  password: Yup.string()
-    .required("Please enter password.")
-    .min(6, "Password must have at least 6 characters"),
-  confirmPassword: Yup.string()
-    .required("Please enter confirm password")
-    .oneOf([Yup.ref("password")], "Your passwords do not match."),
 });
 
 const SignIn: React.FC<IProps> = ({ navigation }) => {
+  const route = useRoute();
   const [pushTokenData, setPushTokenData] = useState({} as IRegistration);
   const [showLoader, setLoader] = useState(false);
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
+
+  const data = useSelector((state) => state.userReducer.userDetails);
   function onAuthStateChanged(user: any) {
     if (user) {
       // Some Android devices can automatically process the verification code (OTP) message, and the user would NOT need to enter the code.
@@ -76,48 +71,27 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
       } as IRegistration);
     }
   };
+
   const submit = async (values: IRegistration, resetForm: () => void) => {
-    setLoader(true);
-
-    const userExists = await firestore()
-      .collection("Users")
-      .where("phone", "==", values.phone)
-      .get();
-    const snapQuery = userExists?.docs[0]?.data();
-
-    if (snapQuery) {
-      commonService.showToast("error", "phone_already_registered");
-      setLoader(false);
-    } else {
-      auth()
-        .createUserWithEmailAndPassword(values.email, values.password)
-        .then(async (userData) => {
-          const confirmation = await auth().signInWithPhoneNumber(
-            `+91${values.phone}`,
-          );
-          userData.user.sendEmailVerification();
-          commonService.showToast("success", "user_crated");
-          setLoader(false);
-          resetForm();
-          navigation.navigate("VerifyCode", {
-            confirmation,
-            userData,
-            values,
-            pushTokenData,
-            toggleCheckBox,
-            phone: `+91${values.phone}`,
-          });
-        })
-        .catch((error) => {
-          setLoader(false);
-          if (error.code === "auth/email-already-in-use") {
-            commonService.showToast("error", "email_in_use");
-          } else if (error.code === "auth/invalid-email") {
-            commonService.showToast("error", "invalid_email");
-          } else {
-            commonService.showToast("error", "default_error");
-          }
+    try {
+      setLoader(true);
+      await firestore()
+        .collection("Users")
+        .doc(data.user.uid)
+        .set({
+          ...pushTokenData,
+          fullName: values.fullName,
+          email: values.email,
+          phone: data.user.phoneNumber.substring(3, 13),
+          role: toggleCheckBox ? "box-admin" : "normal",
+          userId: data.user.uid,
+          dateISO: moment().toISOString(),
+          milliseconds: moment().valueOf(),
         });
+      navigation.navigate("TabNavigation");
+      setLoader(false);
+    } catch (error) {
+      console.log(error, "error...");
     }
   };
   return (
@@ -131,9 +105,6 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
               {
                 fullName: "",
                 email: "",
-                phone: "",
-                password: "",
-                confirmPassword: "",
               } as IRegistration
             }
             onSubmit={(values: IRegistration, { resetForm }) =>
@@ -152,7 +123,9 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
               return (
                 <React.Fragment>
                   <SpaceContainer marginTop={1} marginBottom={5}>
-                    <AuthTitle>{I18nContext.getString("sign_up")}</AuthTitle>
+                    <AuthTitle>
+                      {I18nContext.getString("user_details")}
+                    </AuthTitle>
                   </SpaceContainer>
                   <CustomInput
                     onChangeText={(value) => {
@@ -188,60 +161,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
                     }}
                     onBlur={() => handleBlur("email")}
                   />
-                  <CustomInput
-                    label={"phone_number"}
-                    value={values.phone}
-                    onChangeText={(value) => {
-                      setFieldTouched("phone", true);
-                      setFieldValue("phone", value);
-                    }}
-                    error={
-                      <>
-                        {touched.phone && errors.phone ? (
-                          <ErrorMessage>{errors.phone}</ErrorMessage>
-                        ) : null}
-                      </>
-                    }
-                    onBlur={() => handleBlur("phone")}
-                    placeholder={"85734256745"}
-                  />
-                  <CustomInput
-                    label={"password"}
-                    secureTextEntry={true}
-                    placeholder={"123456"}
-                    value={values.password}
-                    error={
-                      <>
-                        {touched.password && errors.password ? (
-                          <ErrorMessage>{errors.password}</ErrorMessage>
-                        ) : null}
-                      </>
-                    }
-                    onChangeText={(value) => {
-                      setFieldTouched("password", true);
-                      setFieldValue("password", value);
-                    }}
-                    onBlur={() => handleBlur("password")}
-                  />
-                  <CustomInput
-                    containerBtm={2}
-                    label={"confirm_password"}
-                    secureTextEntry={true}
-                    value={values.confirmPassword}
-                    onChangeText={(value) => {
-                      setFieldTouched("confirmPassword", true);
-                      setFieldValue("confirmPassword", value);
-                    }}
-                    error={
-                      <>
-                        {touched.confirmPassword && errors.confirmPassword ? (
-                          <ErrorMessage>{errors.confirmPassword}</ErrorMessage>
-                        ) : null}
-                      </>
-                    }
-                    onBlur={() => handleBlur("confirmPassword")}
-                    placeholder={"123456"}
-                  />
+
                   <View style={{ flexDirection: "row", marginBottom: 8 }}>
                     <CheckBox
                       style={{
@@ -264,17 +184,9 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
                   </View>
                   <CustomGreenButton
                     showLoader={showLoader}
-                    text={"next"}
+                    text={"done"}
                     onPress={handleSubmit}
                   />
-
-                  <SpaceContainer marginTop={6} marginBottom={12}>
-                    <BottomText
-                      firstText={"have_an_account"}
-                      secondText={"sign_in"}
-                      onPress={() => navigation.navigate("SignIn")}
-                    />
-                  </SpaceContainer>
                 </React.Fragment>
               );
             }}

@@ -1,9 +1,7 @@
 export interface ILogin {
-    email: string;
-    password: string;
+  phone: string;
 }
 
 export interface IEmail {
-    email: string;
+  email: string;
 }
-

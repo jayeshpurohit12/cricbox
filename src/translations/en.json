@@ -113,5 +113,9 @@
   "weekend_evening_price": "Week End Evening Price (12 PM - 6 PM)",
   "weekend_night_price": "Week End Night Price (6 PM - 12 AM)",
   "weekend_mid_night_price": "Week End Mid Night Price (12 AM - 6 AM)",
-  "place_added": "Your place is sent for approval. Once admin approve place then it will show to users."
+  "place_added": "Your place is sent for approval. Once admin approve place then it will show to users.",
+  "phone": "Phone",
+  "Get OTP": "Get OTP",
+  "user_details": "User Details",
+  "done": "Done"
 }

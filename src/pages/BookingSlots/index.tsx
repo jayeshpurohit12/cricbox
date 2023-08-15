@@ -13,7 +13,7 @@ import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import moment from "moment";
 import { firebase } from "@react-native-firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedSlotSession } from "redux/actions/actions";
+import { setSelectedSlotSession, setSlotDisabled } from "redux/actions/actions";
 import isEmpty from "lodash/isEmpty";
 
 const TimeSlotItem = ({
@@ -152,6 +152,8 @@ const BookingSlots = ({ route }) => {
     },
   ];
 
+  const disabled = [];
+
   soltAvail.forEach((item) => {
     if (
       timeSlots.includes(item.slot) &&
@@ -159,10 +161,13 @@ const BookingSlots = ({ route }) => {
     ) {
       // isDisabled.push(item);
       item.disabled = true;
+      disabled.push(item);
     }
   });
 
-  console.log(soltAvail, "soltAvail..");
+  useEffect(() => {
+    dispatch(setSlotDisabled(disabled));
+  }, [soltAvail, dispatch, disabled]);
 
   // const isDisabled = soltAvail.find(
   //   (item) =>

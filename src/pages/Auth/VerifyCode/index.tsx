@@ -21,10 +21,14 @@ import { useRoute } from "@react-navigation/native";
 import moment from "moment";
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
+import { useDispatch } from "react-redux";
+import { setIsNewUser, setUserDetails } from "redux/actions/actions";
 
 interface IProps extends NavigationProps {}
 
 const VerifyCode: React.FC<IProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const [otp, setOTP] = useState(["", "", "", "", "", ""]);
   const [showLoader, setLoader] = useState(false);
 
@@ -33,14 +37,7 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
   const theme = useTheme();
   const route = useRoute();
 
-  const {
-    confirmation,
-    userData,
-    values,
-    pushTokenData,
-    toggleCheckBox,
-    phone,
-  } = route.params;
+  const { confirmation, phone } = route.params;
   const formatTime = (remainingTime) => {
     let minutes = Math.floor(remainingTime / 60).toString();
     let seconds = (remainingTime % 60).toString();
@@ -56,25 +53,16 @@ const VerifyCode: React.FC<IProps> = ({ navigation }) => {
   async function confirmCode() {
     setLoader(true);
     const code = otp.join("");
-    console.log(code);
     try {
-      await confirmation.confirm(code);
-      console.log("successfully...");
+      const data = await confirmation.confirm(code);
 
-      firestore()
-        .collection("Users")
-        .doc(userData.user.uid)
-        .set({
-          ...pushTokenData,
-          fullName: values.fullName,
-          email: values.email,
-          phone: values.phone,
-          role: toggleCheckBox ? "box-admin" : "normal",
-          userId: userData.user.uid,
-          dateISO: moment().toISOString(),
-          milliseconds: moment().valueOf(),
-        });
-      navigation.navigate("SignIn");
+      dispatch(setUserDetails(data));
+
+      if (data.additionalUserInfo.isNewUser) {
+        navigation.navigate("SignUp");
+      } else {
+        navigation.navigate("TabNavigation");
+      }
       setLoader(false);
     } catch (error) {
       setLoader(false);

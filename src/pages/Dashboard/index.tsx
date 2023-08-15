@@ -39,6 +39,7 @@ import {
   setFilterTurfSize,
 } from "redux/actions/actions";
 import { set } from "react-native-reanimated";
+import moment from "moment";
 
 interface IProps extends NavigationProps {
   userData: any;
@@ -79,6 +80,7 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   const [turfTime, setTurfTime] = useState([]);
   const [filteredListItems, setFilteredListItems] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [isAvail, setIsAvail] = useState(false);
 
   const selectedTurfSize = useSelector(
     (state) => state.FilterReducer.selectedTurfSize,
@@ -91,6 +93,9 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
   );
   const selectedEndTime = useSelector(
     (state) => state.FilterReducer.selectedEndTime,
+  );
+  const selectedTurfTime = useSelector(
+    (state) => state.FilterReducer.slotDisabled,
   );
 
   const userCurrentId = auth().currentUser?.uid;
@@ -282,18 +287,46 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
       } else if (period.toLowerCase() === "am" && hours24 === 12) {
         hours24 = 0;
       }
-      const data = hours24 * 60 + Number(minutes);
-      return data;
+      const res = hours24 * 60 + Number(minutes);
+
+      return res;
     };
 
     const startMinutes = convertTo24HourFormat(startTime);
     const endMinutes = convertTo24HourFormat(endTime);
+    const currentTime = moment();
+
+    const sTime = moment(startTime, "h:mm A");
+    const eTime = moment(endTime, "h:mm A");
 
     const filteredData = data.filter((item) => {
       const startTimeMinutes = convertTo24HourFormat(item.startTime);
       const endTimeMinutes = convertTo24HourFormat(item.endTime);
 
-      return startTimeMinutes >= startMinutes && endTimeMinutes <= endMinutes;
+      // selectedTurfTime?.forEach((selectedData) => {
+      //   const startSelectedTime = convertTo24HourFormat(
+      //     selectedData?.slot?.split("-")[0].trim(),
+      //   );
+      //   const endSelectedTime = convertTo24HourFormat(
+      //     selectedData?.slot?.split("-")[1].trim(),
+      //   );
+
+      //   if (
+      //     startMinutes !== startSelectedTime ||
+      //     endMinutes !== endSelectedTime
+      //   ) {
+      //     console.log("check...");
+      //     setIsAvail(true);
+      //     return;
+      //   }
+      // });
+
+      return (
+        startTimeMinutes <= startMinutes &&
+        endTimeMinutes >= endMinutes &&
+        currentTime < sTime &&
+        currentTime < eTime
+      );
     });
 
     return filteredData;

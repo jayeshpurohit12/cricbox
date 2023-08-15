@@ -90,8 +90,6 @@ const Profile = ({ navigation }) => {
   ];
   const [userDetails, setUserDetails] = useState({});
 
-  console.log(userDetails, "data...");
-
   const handleSignOut = () => {
     try {
       firebase.auth().signOut();

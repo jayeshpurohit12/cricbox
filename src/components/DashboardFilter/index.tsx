@@ -23,8 +23,6 @@ const DashboardFilter = ({
   const selectedEndTime = useSelector(
     (state) => state.FilterReducer.selectedEndTime,
   );
-  
-
   const price = [
     { label: "Low to High", value: "low" },
     { label: "High to Low", value: "high" },

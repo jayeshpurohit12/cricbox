@@ -15,9 +15,26 @@ const UpcomingBooking = () => {
   const currentDate = moment().format("YYYY-MM-DD");
   const currentTime = moment().format("hh:mm A");
 
-  useEffect(() => {
-    getUpcomingBookingData();
-  }, [getUpcomingBookingData]);
+  // Function to compare time values in "hh:mm a" format
+  const compareTime = (time1, time2) => {
+    const [hour1, minute1, period1] = time1.split(/:|\s/);
+    const [hour2, minute2, period2] = time2.split(/:|\s/);
+
+    if (period1 === period2) {
+      const hourValue1 = parseInt(hour1);
+      const hourValue2 = parseInt(hour2);
+      const minuteValue1 = parseInt(minute1);
+      const minuteValue2 = parseInt(minute2);
+
+      if (hourValue1 === hourValue2) {
+        return minuteValue1 < minuteValue2;
+      }
+
+      return hourValue1 < hourValue2;
+    }
+
+    return period1 === "AM" && period2 === "PM";
+  };
 
   const getUpcomingBookingData = async () => {
     try {
@@ -64,26 +81,9 @@ const UpcomingBooking = () => {
     }
   };
 
-  // Function to compare time values in "hh:mm a" format
-  const compareTime = (time1, time2) => {
-    const [hour1, minute1, period1] = time1.split(/:|\s/);
-    const [hour2, minute2, period2] = time2.split(/:|\s/);
-
-    if (period1 === period2) {
-      const hourValue1 = parseInt(hour1);
-      const hourValue2 = parseInt(hour2);
-      const minuteValue1 = parseInt(minute1);
-      const minuteValue2 = parseInt(minute2);
-
-      if (hourValue1 === hourValue2) {
-        return minuteValue1 < minuteValue2;
-      }
-
-      return hourValue1 < hourValue2;
-    }
-
-    return period1 === "AM" && period2 === "PM";
-  };
+  useEffect(() => {
+    getUpcomingBookingData();
+  }, [getUpcomingBookingData]);
 
   useEffect(() => {
     navigation.addListener("focus", () => {
