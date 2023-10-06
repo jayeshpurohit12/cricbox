@@ -14,7 +14,7 @@ const PreviousBooking: React.FC<IProps> = () => {
 
   const [previousBooking, setPreviousBooking] = useState([]);
 
-  const currentDate = moment().format("DD MMM YYYY");
+  const currentDate = moment().format("YYYY-MM-DD");
   const currentTime = moment().format("hh:mm A");
 
   const currentUserId = firebase.auth().currentUser?.uid;

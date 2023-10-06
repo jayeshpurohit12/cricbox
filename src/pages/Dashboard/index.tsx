@@ -17,7 +17,9 @@ import {
   Linking,
   Button,
   Text,
+  TextInput,
 } from "react-native";
+import Feather from "react-native-vector-icons/Feather";
 import { FontSize } from "styles/sizes";
 import { StyleSheet } from "react-native";
 import auth, { firebase } from "@react-native-firebase/auth";
@@ -28,6 +30,16 @@ import geohash from "ngeohash";
 import haversine from "haversine-distance";
 import ActivityLoader from "components/ActivityLoader";
 import CustomGreenButton from "components/CustomGreenButton";
+import Card from "components/Dashboard/Card";
+import DashboardFilter from "components/DashboardFilter";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setFilterEndTime,
+  setFilterStartTime,
+  setFilterTurfSize,
+} from "redux/actions/actions";
+import { set } from "react-native-reanimated";
+import moment from "moment";
 
 interface IProps extends NavigationProps {
   userData: any;
@@ -58,11 +70,41 @@ const boxes = [
 ];
 
 const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
+  const dispatch = useDispatch();
+
   const [listItems, setListItems] = useState([]);
   const [showLoader, setLoader] = useState(false);
   const [locationPermission, setLocationPermission] = useState(false);
+  const [isFilterVisible, setFilterVisible] = useState(false);
+  const [turfSize, setTurfSize] = useState([]);
+  const [turfTime, setTurfTime] = useState([]);
+  const [filteredListItems, setFilteredListItems] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [isAvail, setIsAvail] = useState(false);
+
+  const selectedTurfSize = useSelector(
+    (state) => state.FilterReducer.selectedTurfSize,
+  );
+  const selectedPrice = useSelector(
+    (state) => state.FilterReducer.selectedPrice,
+  );
+  const selectedStartTime = useSelector(
+    (state) => state.FilterReducer.selectedStartTime,
+  );
+  const selectedEndTime = useSelector(
+    (state) => state.FilterReducer.selectedEndTime,
+  );
+  const selectedTurfTime = useSelector(
+    (state) => state.FilterReducer.slotDisabled,
+  );
 
   const userCurrentId = auth().currentUser?.uid;
+
+  useEffect(() => {
+    dispatch(setFilterTurfSize(turfSize));
+    dispatch(setFilterStartTime(turfTime));
+    dispatch(setFilterEndTime(turfTime));
+  }, [turfSize, turfTime]);
   useEffect(() => {
     let userSubscriber: any = null;
     const subscriber = auth().onAuthStateChanged((user) => {
@@ -154,13 +196,13 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
                   { lat: latitude, lng: longitude },
                   { lat: documentData.lat, lng: documentData.long },
                 ); //Results in meters (default)
-                console.log(haversine_m, "haversine_m");
                 const haversine_km = haversine_m / 1000; //Results in
                 documentData.distance = haversine_km.toFixed(2) + " km";
                 data.push({ ...documentData, docId: document.id });
               });
               setLoader(false);
               setListItems(data);
+              setFilteredListItems(data);
             },
             (error) => {
               setLoader(false);
@@ -179,17 +221,189 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
       });
   };
 
-  // const [isModalVisible, setModalVisible] = useState(false);
+  const getPriceKey = (dateISO) => {
+    const date = new Date(dateISO);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const hour = date.getHours();
+    let timeOfDay;
+
+    if (hour >= 0 && hour < 6) {
+      timeOfDay = "Midnight";
+    } else if (hour >= 6 && hour < 12) {
+      timeOfDay = "Morning";
+    } else if (hour >= 12 && hour < 18) {
+      timeOfDay = "Afternoon/Evening";
+    } else {
+      timeOfDay = "Night";
+    }
+
+    if (isWeekend) {
+      if (timeOfDay === "Morning") {
+        return "weekendMorningPrice";
+      } else if (timeOfDay === "Afternoon/Evening") {
+        return "weekendEveningPrice";
+      } else if (timeOfDay === "Night") {
+        return "weekendNightPrice";
+      } else {
+        return "weekendMidNightPrice";
+      }
+    } else {
+      if (timeOfDay === "Morning") {
+        return "morningPrice";
+      } else if (timeOfDay === "Afternoon/Evening") {
+        return "eveningPrice";
+      } else {
+        return "midNightPrice";
+      }
+    }
+  };
+  const sortByPrice = (data, priceKey, sortOrder) => {
+    if (!["low", "high"].includes(sortOrder)) {
+      throw new Error(`Invalid sortOrder. Must be either "low" or "high".`);
+    }
+
+    const sortedData = [...data];
+
+    return sortedData.sort((a, b) => {
+      const priceA = a[priceKey];
+      const priceB = b[priceKey];
+
+      if (sortOrder === "low") {
+        return priceA - priceB;
+      } else {
+        return priceB - priceA;
+      }
+    });
+  };
+  const filterByTimeFrame = (data, startTime, endTime) => {
+    const convertTo24HourFormat = (timeString) => {
+      const [time, period] = timeString.split(" ");
+      const [hours, minutes] = time.split(":");
+      let hours24 = Number(hours);
+
+      if (period.toLowerCase() === "pm" && hours24 !== 12) {
+        hours24 += 12;
+      } else if (period.toLowerCase() === "am" && hours24 === 12) {
+        hours24 = 0;
+      }
+      const res = hours24 * 60 + Number(minutes);
+
+      return res;
+    };
+
+    const startMinutes = convertTo24HourFormat(startTime);
+    const endMinutes = convertTo24HourFormat(endTime);
+    const currentTime = moment();
+
+    const sTime = moment(startTime, "h:mm A");
+    const eTime = moment(endTime, "h:mm A");
+
+    const filteredData = data.filter((item) => {
+      const startTimeMinutes = convertTo24HourFormat(item.startTime);
+      const endTimeMinutes = convertTo24HourFormat(item.endTime);
+
+      // selectedTurfTime?.forEach((selectedData) => {
+      //   const startSelectedTime = convertTo24HourFormat(
+      //     selectedData?.slot?.split("-")[0].trim(),
+      //   );
+      //   const endSelectedTime = convertTo24HourFormat(
+      //     selectedData?.slot?.split("-")[1].trim(),
+      //   );
+
+      //   if (
+      //     startMinutes !== startSelectedTime ||
+      //     endMinutes !== endSelectedTime
+      //   ) {
+      //     console.log("check...");
+      //     setIsAvail(true);
+      //     return;
+      //   }
+      // });
+
+      return (
+        startTimeMinutes <= startMinutes &&
+        endTimeMinutes >= endMinutes &&
+        currentTime < sTime &&
+        currentTime < eTime
+      );
+    });
+
+    return filteredData;
+  };
+
+  const filterTurfs = () => {
+    let filteredData = [...listItems];
+    const priceKey = getPriceKey(new Date().toISOString());
+    if (selectedPrice)
+      filteredData = sortByPrice(filteredData, priceKey, selectedPrice);
+    if (selectedTurfSize)
+      filteredData = listItems.filter((item: any) =>
+        item.boxDimension.includes(selectedTurfSize),
+      );
+    if (selectedStartTime && selectedEndTime)
+      filteredData = filterByTimeFrame(
+        filteredData,
+        selectedStartTime,
+        selectedEndTime,
+      );
+    setFilteredListItems(filteredData);
+    setFilterVisible(false);
+  };
+  const filterData = (text) => {
+    setSearchText(text);
+    const filteredData = listItems.filter((item) => {
+      const { location, name } = item;
+      const lowerCaseSearchString = text.toLowerCase();
+      return (
+        location.toLowerCase().includes(lowerCaseSearchString) ||
+        name.toLowerCase().includes(lowerCaseSearchString)
+      );
+    });
+    setFilteredListItems(filteredData);
+  };
   return (
     <React.Fragment>
-      <HeaderBar showHelp={true} showBack={false} />
+      <HeaderBar showHelp={true} showBack={false} dummyLeft />
+      <View style={{ marginVertical: 15 }}>
+        <Feather
+          name="search"
+          size={20}
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            left: 30,
+            alignSelf: "center",
+            top: "30%",
+          }}
+          color="grey"
+        />
+        <TextInput
+          onChangeText={(text) => {
+            filterData(text);
+          }}
+          placeholder="Search by venue and location"
+          value={searchText}
+          style={{
+            borderWidth: 1,
+            padding: 8,
+            paddingLeft: "13%",
+            marginHorizontal: 15,
+            borderRadius: 10,
+            backgroundColor: "#e0e0e0",
+            borderColor: "#e0e0e0",
+          }}
+        />
+      </View>
       <FlatList
-        data={listItems}
+        data={filteredListItems}
         contentContainerStyle={{ paddingBottom: 60 }}
         ListEmptyComponent={
           <>
             {showLoader ? <ActivityLoader /> : null}
-            {!showLoader && locationPermission && listItems.length == 0 ? (
+            {!showLoader &&
+            locationPermission &&
+            filteredListItems.length == 0 ? (
               <CardBlackText style={{ textAlign: "center" }}>
                 {I18nContext.getString("no_places")}
               </CardBlackText>
@@ -229,117 +443,60 @@ const Dashboard: React.FC<IProps> = ({ navigation, loadUserData }) => {
         }
         ListHeaderComponent={
           <React.Fragment>
-            {locationPermission ? (
-              <HeadLine style={styles.headLine}>
-                <CardBlackText style={{ fontWeight: "bold" }} marginLeft={0}>
-                  {I18nContext.getString("most_popular")}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "flex-end",
+                justifyContent: "space-between",
+                paddingHorizontal: 15,
+                marginBottom: 15,
+              }}
+            >
+              <HeadLine>
+                <CardBlackText
+                  style={{ fontWeight: "bold", fontSize: 17 }}
+                  marginLeft={0}
+                >
+                  {I18nContext.getString("available_venues")}
                 </CardBlackText>
               </HeadLine>
-            ) : null}
-            {!showLoader && locationPermission ? (
-              <React.Fragment>
-                <FlatList
-                  data={listItems}
-                  style={{ padding: 16 }}
-                  horizontal={true}
-                  keyExtractor={(item) => item.docId}
-                  renderItem={({ item, index, separators }) => (
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigation.navigate("PlaceDetails", {
-                          params: item,
-                        });
-                      }}
-                    >
-                      <View style={{ marginRight: 16 }}>
-                        <Image
-                          style={{ width: 160, height: 160, borderRadius: 12 }}
-                          source={{ uri: item.images[0] }}
-                        />
-                        <CardBlackText
-                          style={{ fontWeight: 500, marginTop: 6 }}
-                          fontSize={FontSize.sm}
-                          marginLeft={0}
-                        >
-                          {item.name}
-                        </CardBlackText>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-                <HeadLine style={styles.headLine}>
-                  <CardBlackText style={{ fontWeight: "bold" }} marginLeft={0}>
-                    {I18nContext.getString("available_venues")}
-                  </CardBlackText>
-                </HeadLine>
-              </React.Fragment>
-            ) : null}
+              <Feather
+                name="filter"
+                size={22}
+                onPress={() => setFilterVisible(true)}
+              />
+            </View>
           </React.Fragment>
         }
         keyExtractor={(item) => item.docId}
-        renderItem={({ item, index, separators }) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
+            activeOpacity={0.8}
             onPress={() => {
               navigation.navigate("PlaceDetails", {
                 params: item,
               });
             }}
+            style={{
+              paddingHorizontal: 15,
+            }}
           >
-            <View key={index} style={{ padding: 16 }}>
-              <View style={{ flexDirection: "row" }}>
-                <CardBlackText
-                  style={{ fontWeight: 500 }}
-                  fontSize={FontSize.sm}
-                  marginLeft={0}
-                >
-                  {item.name}
-                </CardBlackText>
-                <View
-                  style={{
-                    alignItems: "baseline",
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                  }}
-                >
-                  <RatingView />
-                </View>
-              </View>
-
-              <CardGreyText marginLeft={0}>{item.location}</CardGreyText>
-              <CardGreyText marginLeft={0}>({item.distance})</CardGreyText>
-              <Image
-                style={{
-                  height: 170,
-                  marginTop: 8,
-                  width: "100%",
-                  borderRadius: 12,
-                }}
-                source={{ uri: item.images[0] }}
-              />
-            </View>
-            <View
-              style={{
-                borderColor: "#808694",
-                borderWidth: 0.3,
-                marginTop: 12,
-                opacity: 0.3,
-              }}
-            ></View>
+            <Card
+              venueDetails={item}
+              setTurfSize={setTurfSize}
+              turfSize={turfSize}
+              turfTime={turfTime}
+              setTurfTime={setTurfTime}
+            />
           </TouchableOpacity>
         )}
       />
-      {/* <TouchableOpacity
-        onPress={handleBooking}
-        style={{
-          alignSelf: "center",
-          marginTop: 200,
-          borderWidth: 1,
-          width: "40%",
-        }}
-      >
-        <Text>click me</Text>
-      </TouchableOpacity> */}
+
+      <DashboardFilter
+        isFilterVisible={isFilterVisible}
+        setFilterVisible={setFilterVisible}
+        filterTurfs={filterTurfs}
+      />
     </React.Fragment>
   );
 };

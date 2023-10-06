@@ -13,7 +13,7 @@ import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import moment from "moment";
 import { firebase } from "@react-native-firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedSlotSession } from "redux/actions/actions";
+import { setSelectedSlotSession, setSlotDisabled } from "redux/actions/actions";
 import isEmpty from "lodash/isEmpty";
 
 const TimeSlotItem = ({
@@ -152,10 +152,27 @@ const BookingSlots = ({ route }) => {
     },
   ];
 
-  const isDisabled = soltAvail.find(
-    (item) =>
-      timeSlots.includes(item.slot) && item.numberOfTurfAvail === numberOfTurf,
-  );
+  const disabled = [];
+
+  soltAvail.forEach((item) => {
+    if (
+      timeSlots.includes(item.slot) &&
+      item.numberOfTurfAvail === numberOfTurf
+    ) {
+      // isDisabled.push(item);
+      item.disabled = true;
+      disabled.push(item);
+    }
+  });
+
+  useEffect(() => {
+    dispatch(setSlotDisabled(disabled));
+  }, [soltAvail, dispatch, disabled]);
+
+  // const isDisabled = soltAvail.find(
+  //   (item) =>
+  //     timeSlots.includes(item.slot) && item.numberOfTurfAvail === numberOfTurf,
+  // );
 
   const format = "hh:mm A";
 
@@ -396,6 +413,7 @@ const BookingSlots = ({ route }) => {
 
         const querySnapshot = await bookedSlotCollectionRef
           .where("date", "==", selectedDate)
+          .where("placeId", "==", placeId)
           .get();
 
         const bookedSlots = querySnapshot.docs.reduce((result, doc) => {
@@ -408,6 +426,7 @@ const BookingSlots = ({ route }) => {
               result.push(slot);
             }
           });
+
           return result;
         }, []);
         setSlotAvail(bookedSlots);
@@ -439,13 +458,21 @@ const BookingSlots = ({ route }) => {
         // contentContainerStyle={{ paddingBottom: "25%" }}
         style={{ marginBottom: "23%" }}
       >
-        {timeSlots.map((slot) => (
+        {timeSlots.map((slot, i) => (
           <TimeSlotItem
             key={slot}
             slot={slot}
             isSelected={isSlotSelected(slot)}
             onPress={() => handleSlotSelection(slot)}
-            isDisabled={isDisabled}
+            isDisabled={
+              soltAvail[
+                soltAvail?.findIndex(
+                  (item) =>
+                    item.slot === slot &&
+                    item.numberOfTurfAvail === numberOfTurf,
+                )
+              ]
+            }
             selectedDate={selectedDate}
           />
         ))}

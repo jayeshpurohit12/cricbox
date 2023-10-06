@@ -55,3 +55,80 @@ export const setSelectedSlotSession = (slotSession: any) => {
     slotSession,
   };
 };
+
+export const setFilterTurfSize = (turfSizes: any[]) => {
+  return {
+    type: Types.SET_FILTER_TURF_SIZE,
+    turfSizes,
+  };
+};
+
+export const setFilterPrice = (price: any) => {
+  return {
+    type: Types.SET_FILTER_PRICE,
+    price,
+  };
+};
+
+export const setFilterSlots = (slots: any) => {
+  return {
+    type: Types.SET_FILTER_SLOTS,
+    slots,
+  };
+};
+
+export const setFilterStartTime = (startTime: any) => {
+  return {
+    type: Types.SET_FILTER_START_TIME,
+    startTime,
+  };
+};
+
+export const setFilterEndTime = (endTime: any) => {
+  return {
+    type: Types.SET_FILTER_END_TIME,
+    endTime,
+  };
+};
+
+export const setSelectedTurfSize = (selectedTurfSize: any) => {
+  return {
+    type: Types.SET_SELECTED_TURF_SIZE,
+    selectedTurfSize,
+  };
+};
+
+export const setSelectedPrice = (selectedPrice: any) => {
+  return {
+    type: Types.SET_SELECTED_PRICE,
+    selectedPrice,
+  };
+};
+
+export const setSelectedStartTime = (selectedStartTime: any) => {
+  return {
+    type: Types.SET_SELECTED_START_TIME,
+    selectedStartTime,
+  };
+};
+
+export const setSelectedEndTime = (selectedEndTime: any) => {
+  return {
+    type: Types.SET_SELECTED_END_TIME,
+    selectedEndTime,
+  };
+};
+
+export const setUserDetails = (userDetails: any) => {
+  return {
+    type: Types.USER_DETAILS,
+    userDetails,
+  };
+};
+
+export const setSlotDisabled = (slotDisabled: any) => {
+  return {
+    type: Types.SET_SLOTD_DISABLED,
+    slotDisabled,
+  };
+};

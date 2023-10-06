@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import connectStore from "../../../redux/connect";
 import {
   AppScrollView,
@@ -12,55 +12,38 @@ import I18nContext from "../../../translations/I18nContext";
 import CustomInput from "../../../components/CustomInput";
 import CustomGreenButton from "../../../components/CustomGreenButton";
 import auth from "@react-native-firebase/auth";
-import BottomText from "../../../components/BottomText";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { ILogin } from "../../../models/Login";
-import commonService from "service/commonService";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
 interface IProps extends NavigationProps {}
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .required("Please enter email.")
-    .email("Please enter correct email."),
-  password: Yup.string()
-    .required("Please enter password.")
-    .min(6, "Password must have at least 6 characters"),
+  phone: Yup.string()
+    .required("Please enter phone number.")
+    .min(10, "Please enter valid number")
+    .max(10, "Please enter valid number"),
 });
 
 const SignIn: React.FC<IProps> = ({ navigation }) => {
-  const navigation2 = useNavigation<NavigationProp<any>>();
   const [showLoader, setLoader] = useState(false);
+
   const submit = async (values: ILogin, resetForm: () => void) => {
-    // navigation.navigate("ForgotUsername");
-    setLoader(true);
-    auth()
-      .signInWithEmailAndPassword(values.email, values.password)
-      .then((userData) => {
-        setLoader(false);
-        if (userData.user.emailVerified) {
-          resetForm();
-          setTimeout(() => {
-            // navigation2.navigate("TabNavigation", { screen: "VerifyCode" });
-            navigation.navigate("TabNavigation");
-          }, 700);
-        } else {
-          userData.user.sendEmailVerification();
-          commonService.showToast("error", "email_not_verified");
-        }
-      })
-      .catch((error) => {
-        setLoader(false);
-        if (error.code === "auth/invalid-email") {
-          commonService.showToast("error", "invalid_email");
-        } else if (error.code === "auth/user-not-found") {
-          commonService.showToast("error", "user_not_found");
-        } else {
-          commonService.showToast("error", "default_error");
-        }
+    try {
+      // navigation.navigate("ForgotUsername");
+      setLoader(true);
+      const confirmation = await auth().signInWithPhoneNumber(
+        `+91${values.phone}`,
+      );
+      navigation.navigate("VerifyCode", {
+        confirmation,
+        phone: `+91${values.phone}`,
       });
+      setLoader(false);
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
   };
   return (
     <React.Fragment>
@@ -69,7 +52,7 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
         <AppScrollView>
           <Formik
             validationSchema={validationSchema}
-            initialValues={{ email: "", password: "" }}
+            initialValues={{ phone: "" }}
             onSubmit={(values, { resetForm }) => submit(values, resetForm)}
           >
             {({
@@ -89,54 +72,27 @@ const SignIn: React.FC<IProps> = ({ navigation }) => {
                   <CustomInput
                     bottomLabel={""}
                     onPress={() => navigation.navigate("ForgotUsername")}
-                    label={"email"}
+                    label="phone"
                     onChangeText={(value) => {
-                      setFieldTouched("email", true);
-                      setFieldValue("email", value);
+                      setFieldTouched("phone", true);
+                      setFieldValue("phone", value);
                     }}
                     error={
                       <>
-                        {touched.email && errors.email ? (
-                          <ErrorMessage>{errors.email}</ErrorMessage>
+                        {touched.phone && errors.phone ? (
+                          <ErrorMessage>{errors.phone}</ErrorMessage>
                         ) : null}
                       </>
                     }
-                    onBlur={() => handleBlur("email")}
-                    placeholder={"circbox@gmail.com"}
+                    onBlur={() => handleBlur("phone")}
+                    placeholder={"7678909876"}
                   />
 
-                  <CustomInput
-                    bottomLabel={"forgot_password"}
-                    label={"password"}
-                    value={values.password}
-                    onChangeText={(value) => {
-                      setFieldTouched("password", true);
-                      setFieldValue("password", value);
-                    }}
-                    onBlur={() => handleBlur("password")}
-                    onPress={() => navigation.navigate("ForgotPassword")}
-                    secureTextEntry={true}
-                    error={
-                      <>
-                        {touched.password && errors.password ? (
-                          <ErrorMessage>{errors.password}</ErrorMessage>
-                        ) : null}
-                      </>
-                    }
-                    placeholder={"123456"}
-                  />
                   <CustomGreenButton
                     showLoader={showLoader}
-                    text={"sign_in"}
+                    text={"Get OTP"}
                     onPress={handleSubmit}
                   />
-                  <SpaceContainer marginTop={6} marginBottom={12}>
-                    <BottomText
-                      firstText={"new_user"}
-                      secondText={"sign_up"}
-                      onPress={() => navigation.navigate("SignUp")}
-                    />
-                  </SpaceContainer>
                 </>
               );
             }}

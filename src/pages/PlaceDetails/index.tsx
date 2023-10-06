@@ -71,8 +71,6 @@ const PlaceDetails: React.FC<IProps> = ({ route, navigation, userData }) => {
     Linking.openURL(url);
   };
 
-  console.log(placeDetails?.params, "placeDetails?.params");
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
@@ -140,18 +138,21 @@ const PlaceDetails: React.FC<IProps> = ({ route, navigation, userData }) => {
                 backgroundColor: "#e0e0e0",
                 borderColor: "#e0e0e0",
                 flexDirection: "row",
-                width: "55%",
+                // width: "55%",
                 alignItems: "center",
               }}
             >
               <Feather name="clock" size={20} color="black" />
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Text
-                  style={{ fontSize: 16, color: "black", fontWeight: "bold" }}
-                >
-                  Monday - Sunday
-                </Text>
-              </View>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: "black",
+                  fontWeight: "bold",
+                  marginLeft: 10,
+                }}
+              >
+                Monday - Sunday
+              </Text>
             </View>
             <View
               style={{

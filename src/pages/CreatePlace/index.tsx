@@ -142,7 +142,6 @@ const CreatePlace: React.FC<IProps> = ({ navigation, userData }) => {
       })
       .then((document) => {
         const images: Array<string> = [];
-        console.log(imageFiles);
         try {
           const uploadImage = imageFiles.map(async (item: any) => {
             const sourceUrl =
@@ -687,7 +686,6 @@ const CreatePlace: React.FC<IProps> = ({ navigation, userData }) => {
                       keepResultsAfterBlur={true}
                       onFail={(error) => console.error(error)}
                       onPress={(data, details = null) => {
-                        console.log(data, details, "uyty");
                         if (details) {
                           setFieldValue("lat", details.geometry.location.lat);
                           setFieldValue("long", details.geometry.location.lng);

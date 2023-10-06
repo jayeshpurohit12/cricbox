@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import * as Yup from "yup";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -27,10 +27,10 @@ export const Input = ({
   onError,
 }) => {
   return (
-    <View style={{ paddingHorizontal: 15, marginTop: 15 }}>
+    <View style={{ paddingHorizontal: 15, marginTop: 20 }}>
       <Text
         style={{
-          marginBottom: 20,
+          marginBottom: 5,
           fontSize: 12,
           color: "grey",
           fontWeight: "700",
@@ -85,9 +85,13 @@ const EditProfile = () => {
       mediaType: "photo",
       selectionLimit: 1,
       includeExif: true,
-    }).then((images) => {
-      setImageFiles(images);
-    });
+    })
+      .then((images) => {
+        console.log(images, "log...");
+
+        setImageFiles(images);
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleUpdate = async (values) => {
@@ -96,29 +100,46 @@ const EditProfile = () => {
       const sourceUrl =
         Platform.OS === "ios" ? imageFiles?.sourceURL : imageFiles?.path;
       const fileName = sourceUrl?.substring(sourceUrl?.lastIndexOf("/") + 1);
-      const reference = storage().ref(imageFiles?.filename ?? fileName);
-      const uploadUri =
-        Platform.OS === "ios"
-          ? imageFiles?.sourceURL?.replace("file://", "")
-          : imageFiles?.path;
-      await reference.putFile(uploadUri);
-      const url = await reference.getDownloadURL();
+      if (!imageFiles) {
+        const docRef = firebase
+          .firestore()
+          .collection("Users")
+          .doc(userDetails?.userId);
 
-      const docRef = firebase
-        .firestore()
-        .collection("Users")
-        .doc(userDetails?.userId);
+        const data = {
+          fullName: `${values?.firstName} ${values?.lastName}`,
+          phone: values?.phoneNumber,
+        };
 
-      const data = {
-        fullName: `${values?.firstName} ${values?.lastName}`,
-        phone: values?.phoneNumber,
-        profileUrl: url,
-      };
+        docRef.update(data).then(() => {
+          navigation.navigate("Profile");
+          setLoader(false);
+        });
+      } else {
+        const reference = storage().ref(imageFiles?.filename ?? fileName);
+        const uploadUri =
+          Platform.OS === "ios"
+            ? imageFiles?.sourceURL?.replace("file://", "")
+            : imageFiles?.path;
+        await reference.putFile(uploadUri);
+        const url = await reference.getDownloadURL();
 
-      docRef.update(data).then(() => {
-        navigation.navigate("Profile");
-        setLoader(false);
-      });
+        const docRef = firebase
+          .firestore()
+          .collection("Users")
+          .doc(userDetails?.userId);
+
+        const data = {
+          fullName: `${values?.firstName} ${values?.lastName}`,
+          phone: values?.phoneNumber,
+          profileUrl: url,
+        };
+
+        docRef.update(data).then(() => {
+          navigation.navigate("Profile");
+          setLoader(false);
+        });
+      }
     } catch (error) {
       setLoader(false);
       console.log(error, "error...");
@@ -127,51 +148,58 @@ const EditProfile = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      {userDetails?.profileUrl || imageFiles ? (
-        <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
-          <Image
-            source={{
-              uri:
-                Platform.OS === "ios"
-                  ? imageFiles?.sourceURL
-                    ? imageFiles?.path
-                    : userDetails?.profileUrl
-                  : "",
-            }}
-            style={{
-              width: 100,
-              height: 100,
-              borderRadius: 50,
-              alignSelf: "center",
-              marginTop: 20,
-            }}
-          />
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
-          <Icon
-            name="user-circle"
-            size={100}
-            color="#e0e0e0"
-            style={{ marginTop: 20, alignSelf: "center" }}
+      <View>
+        {userDetails?.profileUrl || imageFiles ? (
+          <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
+            <Image
+              source={{
+                uri:
+                  Platform.OS === "ios"
+                    ? imageFiles?.sourceURL
+                      ? imageFiles?.path
+                      : imageFiles?.path
+                    : userDetails?.profileUrl,
+              }}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                alignSelf: "center",
+                marginTop: 20,
+              }}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity activeOpacity={1} onPress={openImagePicker}>
+            <Icon
+              name="user-circle"
+              size={100}
+              color="#e0e0e0"
+              style={{ marginTop: 20, alignSelf: "center" }}
+              onPress={openImagePicker}
+            />
+          </TouchableOpacity>
+        )}
+
+        <View
+          style={{
+            borderWidth: 1,
+            borderRadius: 30,
+            padding: 5,
+            position: "absolute",
+            backgroundColor: "blue",
+            borderColor: "blue",
+            bottom: 0,
+            left: "54%",
+          }}
+        >
+          <MaterialIcons
+            name="edit"
+            size={18}
+            color="white"
             onPress={openImagePicker}
           />
-        </TouchableOpacity>
-      )}
-
-      <View
-        style={{
-          borderWidth: 1,
-          borderRadius: 30,
-          padding: 5,
-          position: "absolute",
-          backgroundColor: "blue",
-          borderColor: "blue",
-          top: "12.5%",
-          left: "55%",
-        }}
-      >
-        <MaterialIcons name="edit" size={18} color="white" />
+        </View>
       </View>
       <Formik
         validationSchema={validationSchema}
@@ -211,6 +239,7 @@ const EditProfile = () => {
                 inputName="Phone"
                 value={values?.phoneNumber}
                 isNumber
+                isDisabled
                 onChangeText={(text) => {
                   setFieldValue("phoneNumber", text);
                   setFieldTouched("phoneNumber", true);

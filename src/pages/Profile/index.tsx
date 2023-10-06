@@ -104,8 +104,6 @@ const Profile = ({ navigation }) => {
 
   const capitalizedFullName = capitalizeFirstLetter(userDetails?.fullName);
 
-  console.log(userDetails, "userDetails..");
-
   const currentUser = firebase.auth().currentUser?.uid;
 
   useEffect(() => {

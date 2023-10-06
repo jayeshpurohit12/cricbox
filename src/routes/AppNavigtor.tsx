@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
 import auth from "@react-native-firebase/auth";
 import SignIn from "../pages/Auth/SignIn";
@@ -19,11 +19,7 @@ import Reports from "../pages/Reports";
 import Faq from "../pages/Faq";
 import PrivacyAndPolicies from "../pages/PrivacyAndPolicies";
 import TermsAndConditions from "../pages/TermsAndConditions";
-import SideMenu from "../components/SideMenu";
-import Settings from "../pages/Settings";
-import ConfigurationTips from "../pages/ConfigurationTips";
 import CreatePlace from "pages/CreatePlace";
-import PendingPlaces from "pages/PendingPlaces";
 import MyPlaces from "pages/MyPlaces";
 import PlaceDetails from "pages/PlaceDetails";
 import Bookings from "pages/Bookings";
@@ -35,28 +31,33 @@ import BookingSummary from "pages/BookingSummary";
 import BookingDetails from "components/BookingsHistory/BookingDetails";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EditProfile from "pages/EditProfile";
+import firestore, { firebase } from "@react-native-firebase/firestore";
+import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
 interface IProps {}
 
 const AppNavigator: React.FC<IProps> = ({}) => {
+  const navigation = useNavigation();
   const Stack = createNativeStackNavigator();
   const Drawer = createDrawerNavigator();
   const Tab = createBottomTabNavigator();
   const theme = useTheme();
   const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
 
   // Handle user state changes
   function onAuthStateChanged(user: any) {
     setUser(user);
-
     if (initializing) setInitializing(false);
   }
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
+    return subscriber;
   }, []);
+
+  console.log(user, "user...");
 
   const screenOptions = {
     gestureEnabled: false,
@@ -99,115 +100,6 @@ const AppNavigator: React.FC<IProps> = ({}) => {
           name="ScanBarcode"
           options={hideHeader}
           component={ScanBarcode}
-        />
-      </Stack.Navigator>
-    );
-  };
-
-  const PaymentHistoryStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="PaymentHistory"
-          options={hideHeader}
-          component={PaymentHistory}
-        />
-      </Stack.Navigator>
-    );
-  };
-
-  const ReportStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen name="Reports" options={hideHeader} component={Reports} />
-      </Stack.Navigator>
-    );
-  };
-
-  const FaqStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen name="Faq" options={hideHeader} component={Faq} />
-      </Stack.Navigator>
-    );
-  };
-
-  const CreatPlaceStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="CreatePlace"
-          options={hideHeader}
-          component={CreatePlace}
-        />
-      </Stack.Navigator>
-    );
-  };
-  const TermsStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="TermsAndConditions"
-          options={hideHeader}
-          component={TermsAndConditions}
-        />
-      </Stack.Navigator>
-    );
-  };
-
-  const PolicyStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="PrivacyAndPolicies"
-          options={hideHeader}
-          component={PrivacyAndPolicies}
-        />
-      </Stack.Navigator>
-    );
-  };
-
-  const PendingPlaceStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="PendingPlaces"
-          options={hideHeader}
-          component={PendingPlaces}
-        />
-        <Stack.Screen
-          name="PlaceDetails"
-          options={hideHeader}
-          component={PlaceDetails}
-        />
-      </Stack.Navigator>
-    );
-  };
-
-  const MyPlaceStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="MyPlaces"
-          options={hideHeader}
-          component={MyPlaces}
-        />
-      </Stack.Navigator>
-    );
-  };
-
-  const SetttingsStack = () => {
-    return (
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen
-          name="Settings"
-          options={hideHeader}
-          component={Settings}
-        />
-        <Stack.Screen
-          name="ConfigurationTips"
-          options={hideHeader}
-          component={ConfigurationTips}
         />
       </Stack.Navigator>
     );
@@ -386,7 +278,7 @@ const AppNavigator: React.FC<IProps> = ({}) => {
 
   if (initializing) return null;
 
-  if (!user || (user && !user.emailVerified)) {
+  if (!user) {
     return (
       <Stack.Navigator screenOptions={screenOptions}>
         {/* <Stack.Screen name="StartUp" options={hideHeader} component={StartUp} /> */}
@@ -425,6 +317,7 @@ const AppNavigator: React.FC<IProps> = ({}) => {
             options={hideHeader}
             component={TabNavigator}
           />
+          <Stack.Screen name="SignUp" options={hideHeader} component={SignUp} />
           <Stack.Screen
             name="PlaceDetails"
             options={hideHeader}

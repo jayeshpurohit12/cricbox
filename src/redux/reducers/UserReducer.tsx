@@ -3,6 +3,8 @@ import { User } from "../interfaces/User";
 
 let globalStates = {
   darkThemeEnabled: false,
+  userDetails: {},
+  isSubmit: false,
   userData: {},
 } as User;
 
@@ -18,7 +20,11 @@ const userReducer = (state = globalStates, actionData: any) => {
         ...state,
         userData: actionData.userData,
       };
-
+    case Types.USER_DETAILS:
+      return {
+        ...state,
+        userDetails: actionData.userDetails,
+      };
     default:
       return state;
   }

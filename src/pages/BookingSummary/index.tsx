@@ -221,7 +221,7 @@ const BookingSummary = ({ route }) => {
     long: long,
     turfDimensions: boxDimension,
     phoneNumber: loggedInUser?.phone,
-    turfBookingDate: moment(date, "YYYY-MM-DD").format("DD MMM YYYY"),
+    turfBookingDate: moment(date, "YYYY-MM-DD").format("YYYY-MM-DD"),
     startTime: parsedSlots[0]?.startTime,
     endTime: parsedSlots[selectedSlots.length - 1]?.endTime,
     totalPrice: totalPrice,
@@ -313,14 +313,16 @@ const BookingSummary = ({ route }) => {
         )}
       </TouchableOpacity>
 
-      <PaymentModal
-        isPaymentModalOpen={isPaymentModalOpen}
-        setIsPaymentModalOpen={setIsPaymentModalOpen}
-        setIsPaymentSuccess={setIsPaymentSuccess}
-        userDetails={userDetails}
-        setIsPaymentLoading={setIsPaymentLoading}
-        paymentDetails={paymentDetails}
-      />
+      {paymentDetails[0] && (
+        <PaymentModal
+          isPaymentModalOpen={isPaymentModalOpen}
+          setIsPaymentModalOpen={setIsPaymentModalOpen}
+          setIsPaymentSuccess={setIsPaymentSuccess}
+          userDetails={userDetails}
+          setIsPaymentLoading={setIsPaymentLoading}
+          paymentDetails={paymentDetails}
+        />
+      )}
     </View>
   );
 };

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useRef } from "react";
+import { View, TextInput, StyleSheet } from "react-native";
 import connectStore from "../../../redux/connect";
 import {
   AppScrollView,
@@ -17,13 +18,26 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { OtpContainer, OtpBox, CirculerTimer } from "./style";
 import BottomText from "../../../components/BottomText";
 import { useRoute } from "@react-navigation/native";
+import moment from "moment";
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import { useDispatch } from "react-redux";
+import { setIsNewUser, setUserDetails } from "redux/actions/actions";
 
 interface IProps extends NavigationProps {}
 
-const VerifyCode: React.FC<IProps> = ({ navigation}) => {
+const VerifyCode: React.FC<IProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
+
+  const [otp, setOTP] = useState(["", "", "", "", "", ""]);
+  const [showLoader, setLoader] = useState(false);
+
+  const refs = useRef([]);
+
   const theme = useTheme();
   const route = useRoute();
-  const {phone} = route.params;
+
+  const { confirmation, phone } = route.params;
   const formatTime = (remainingTime) => {
     let minutes = Math.floor(remainingTime / 60).toString();
     let seconds = (remainingTime % 60).toString();
@@ -35,6 +49,58 @@ const VerifyCode: React.FC<IProps> = ({ navigation}) => {
       seconds = "0" + seconds;
     }
     return `${minutes}:${seconds}`;
+  };
+  async function confirmCode() {
+    setLoader(true);
+    const code = otp.join("");
+    try {
+      const data = await confirmation.confirm(code);
+
+      dispatch(setUserDetails(data));
+
+      if (data.additionalUserInfo.isNewUser) {
+        navigation.navigate("SignUp");
+      } else {
+        navigation.navigate("TabNavigation");
+      }
+      setLoader(false);
+    } catch (error) {
+      setLoader(false);
+      console.log("Invalid code.");
+    }
+  }
+
+  const handleOTPEnter = (index, input) => {
+    setOTP((prevOTP) => {
+      const newOTP = [...prevOTP];
+      newOTP[index] = input;
+      return newOTP;
+    });
+
+    if (input !== "") {
+      if (index < 5) {
+        refs.current[index + 1].focus();
+      }
+    } else {
+      if (index > 0) {
+        refs.current[index - 1].focus();
+      }
+    }
+  };
+
+  const handleOTPKeyPress = (index, e) => {
+    if (e.nativeEvent.key === "Backspace" && index > 0) {
+      refs.current[index - 1].focus();
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      await auth().signInWithPhoneNumber(phone);
+      console.log("Code Resent!");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -49,39 +115,35 @@ const VerifyCode: React.FC<IProps> = ({ navigation}) => {
             <SubtitleContainer>
               <RegularText textAlign={"center"}>
                 {I18nContext.getString("we_have_sent_verification_code_to")}
-                email{" "}
-                <RegularText color={"greenColor"}>test@gmail.com</RegularText>
+                Phone Number{" "}
+                <RegularText color={"greenColor"}>{phone}</RegularText>
               </RegularText>
             </SubtitleContainer>
           </SpaceContainer>
           <SpaceContainer marginBottom={6}>
             <OtpContainer>
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
-              <OtpBox
-                keyboardType={"number-pad"}
-                autoCorrect={false}
-                maxLength={1}
-              />
+              <View style={styles.container}>
+                <View style={styles.otpContainer}>
+                  {otp.map((digit, index) => (
+                    <TextInput
+                      key={index}
+                      style={styles.otpBox}
+                      value={digit}
+                      onChangeText={(input) => handleOTPEnter(index, input)}
+                      onKeyPress={(e) => handleOTPKeyPress(index, e)}
+                      keyboardType="numeric"
+                      maxLength={1}
+                      ref={(input) => (refs.current[index] = input)}
+                    />
+                  ))}
+                </View>
+              </View>
             </OtpContainer>
           </SpaceContainer>
           <CustomGreenButton
-            showLoader={false}
+            showLoader={showLoader}
             text={"verify"}
-            onPress={() => ""}
+            onPress={() => confirmCode()}
           />
           <SpaceContainer marginTop={7}>
             <CirculerTimer>
@@ -105,7 +167,7 @@ const VerifyCode: React.FC<IProps> = ({ navigation}) => {
             <BottomText
               firstText={"did_not_receive_code"}
               secondText={"resend"}
-              onPress={() => ""}
+              onPress={handleResend}
             />
           </SpaceContainer>
         </AppScrollView>
@@ -113,4 +175,25 @@ const VerifyCode: React.FC<IProps> = ({ navigation}) => {
     </React.Fragment>
   );
 };
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  otpContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  otpBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginHorizontal: 5,
+    textAlign: "center",
+    fontSize: 20,
+  },
+});
 export default connectStore(VerifyCode);
